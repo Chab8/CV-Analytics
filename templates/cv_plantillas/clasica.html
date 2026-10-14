@@ -170,8 +170,7 @@
         {% if cv.extras %}
         <h2>Cursos y certificaciones</h2>
         {% for x in cv.extras %}
-        <div class="item"><strong>{{ x.titulo }}</strong>{% if x.detalle %} — <span class="sub">{{ x.detalle }}</span>{%
-            endif %}</div>
+        <div class="item"><strong>{{ x.titulo }}</strong>{% if x.institucion or x.anio %} — <span class="sub">{{ x.institucion }}{% if x.institucion and x.anio %}, {% endif %}{{ x.anio }}</span>{% endif %}</div>
         {% endfor %}
         {% endif %}
     </div>

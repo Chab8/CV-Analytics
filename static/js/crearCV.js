@@ -52,6 +52,80 @@ document.addEventListener("DOMContentLoaded", () => {
         el.addEventListener("input", () => { estado[seccion][campo] = el.value; guardar(); });
     });
 
+    /* ---------------- Auto-formato de fecha MM/AAAA ---------------- */
+    function aplicarAutoSlash(input) {
+        input.addEventListener("keydown", e => {
+            // Guardar si era borrar
+            input._borrando = e.key === "Backspace" || e.key === "Delete";
+        });
+        input.addEventListener("input", () => {
+            if (input._borrando) return; // no interferir al borrar
+            let val = input.value.replace(/\D/g, ""); // solo números
+            if (val.length >= 2) {
+                val = val.slice(0, 2) + "/" + val.slice(2, 6);
+            }
+            input.value = val;
+        });
+    }
+
+    // Aplicar a campos existentes (data-path) — no los hay con MM/AAAA en personal, pero por si se agregan
+    form.querySelectorAll(".fecha-mmaaaa").forEach(aplicarAutoSlash);
+
+    /* ---------------- Validación de rango de fechas ---------------- */
+    function parsearFechaMMAAAA(str) {
+        if (!str) return null;
+        const partes = str.split("/");
+        if (partes.length !== 2) return null;
+        const mm = parseInt(partes[0], 10);
+        const aaaa = parseInt(partes[1], 10);
+        if (isNaN(mm) || isNaN(aaaa) || mm < 1 || mm > 12) return null;
+        return new Date(aaaa, mm - 1, 1);
+    }
+
+    function parsearFechaAAAA(str) {
+        if (!str || str.trim().toLowerCase() === "en curso") return null;
+        const aaaa = parseInt(str.trim(), 10);
+        if (isNaN(aaaa)) return null;
+        return new Date(aaaa, 0, 1);
+    }
+
+    function validarRangoFechas(nodo, tipoFecha) {
+        const desdeEl = nodo.querySelector('[data-field="desde"]');
+        const hastaEl = nodo.querySelector('[data-field="hasta"]');
+        const actualChk = nodo.querySelector('[data-field="actual"]');
+        if (!desdeEl || !hastaEl) return true;
+        if (actualChk && actualChk.checked) return true;
+        const hastaVal = hastaEl.value.trim();
+        if (!hastaVal || hastaVal.toLowerCase() === "en curso") return true;
+        const desdeVal = desdeEl.value.trim();
+        if (!desdeVal) return true;
+
+        const parsear = tipoFecha === "mmaaaa" ? parsearFechaMMAAAA : parsearFechaAAAA;
+        const desde = parsear(desdeVal);
+        const hasta = parsear(hastaVal);
+
+        if (desde && hasta && desde > hasta) {
+            return false;
+        }
+        return true;
+    }
+
+    function mostrarErrorFecha(nodo, ok) {
+        let errEl = nodo.querySelector(".error-fecha");
+        if (!ok) {
+            if (!errEl) {
+                errEl = document.createElement("p");
+                errEl.className = "error-fecha";
+                errEl.style.cssText = "color:#e53e3e;font-size:.8rem;margin-top:4px;";
+                const grid = nodo.querySelector(".grid-2");
+                if (grid) grid.after(errEl);
+            }
+            errEl.textContent = "⚠ La fecha de inicio debe ser anterior a la de finalización.";
+        } else if (errEl) {
+            errEl.remove();
+        }
+    }
+
     /* ---------------- Listas repetibles ---------------- */
     const contenedor = n => form.querySelector(`[data-list="${n}"]`);
 
@@ -61,6 +135,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (chk && hasta) {
             hasta.disabled = chk.checked;
             if (chk.checked) hasta.value = "";
+        }
+        // Botón "En curso" para educacion
+        const btnEnCurso = nodo.querySelector(".btn-en-curso");
+        if (btnEnCurso && hasta) {
+            const enCurso = hasta.value.trim().toLowerCase() === "en curso" || hasta.disabled;
+            btnEnCurso.classList.toggle("activo", enCurso);
         }
     }
 
@@ -85,6 +165,36 @@ document.addEventListener("DOMContentLoaded", () => {
             else el.value = v == null ? "" : v;
         });
         sincronizarActual(nodo);
+
+        // Auto-slash en campos MM/AAAA dentro del item
+        nodo.querySelectorAll(".fecha-mmaaaa").forEach(aplicarAutoSlash);
+
+        // Botón "En curso" para educacion
+        const btnEnCurso = nodo.querySelector(".btn-en-curso");
+        if (btnEnCurso) {
+            const hastaInput = nodo.querySelector('[data-field="hasta"]');
+            // Restaurar estado "En curso" si el valor guardado lo indica
+            if (valores.actual === true || (hastaInput && hastaInput.value.trim().toLowerCase() === "en curso")) {
+                if (hastaInput) { hastaInput.value = "En curso"; hastaInput.disabled = true; }
+                btnEnCurso.classList.add("activo");
+            }
+            btnEnCurso.addEventListener("click", () => {
+                if (!hastaInput) return;
+                if (hastaInput.disabled) {
+                    // Desactivar "En curso"
+                    hastaInput.disabled = false;
+                    hastaInput.value = "";
+                    btnEnCurso.classList.remove("activo");
+                } else {
+                    // Activar "En curso"
+                    hastaInput.value = "En curso";
+                    hastaInput.disabled = true;
+                    btnEnCurso.classList.add("activo");
+                }
+                sincronizarLista(nombre);
+            });
+        }
+
         return nodo;
     }
 
@@ -93,9 +203,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const inicial = estado[nombre].length ? estado[nombre] : [{}];
         inicial.forEach(v => cont.append(crearItem(nombre, v)));
 
+        const tipoFecha = (nombre === "experiencia") ? "mmaaaa" : "aaaa";
+
         const alCambiar = e => {
             const item = e.target.closest(".item");
-            if (item) sincronizarActual(item);
+            if (item) {
+                sincronizarActual(item);
+                const ok = validarRangoFechas(item, tipoFecha);
+                mostrarErrorFecha(item, ok);
+            }
             sincronizarLista(nombre);
         };
         cont.addEventListener("input", alCambiar);
@@ -196,23 +312,61 @@ document.addEventListener("DOMContentLoaded", () => {
         previewWrap.style.height = (alto * escala) + "px";
     }
 
+    /* ---------------- Construir payload limpio para el render ---------------- */
+    function construirPayload() {
+        // Clonar datos asegurando que "En curso" en educación se convierta a actual=true
+        const educacionLimpia = (estado.educacion || []).map(e => {
+            const copia = { ...e };
+            if (copia.hasta && copia.hasta.trim().toLowerCase() === "en curso") {
+                copia.actual = true;
+                copia.hasta = "";
+            }
+            return copia;
+        });
+
+        return {
+            plantilla: estado.plantilla,
+            datos: {
+                ...estado,
+                educacion: educacionLimpia
+            }
+        };
+    }
+
     let ticket = 0;
     async function generarVistaPrevia() {
         const mio = ++ticket;
         volcarTagPendiente();
         previewError.textContent = "";
+        previewError.style.display = "none";
+
+        const renderUrl = form.dataset.renderUrl;
+        if (!renderUrl) {
+            previewError.textContent = "Error de configuración: URL de render no encontrada.";
+            previewError.style.display = "block";
+            return;
+        }
+
         try {
-            const r = await fetch(form.dataset.renderUrl, {
+            const payload = construirPayload();
+            const r = await fetch(renderUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ plantilla: estado.plantilla, datos: estado })
+                body: JSON.stringify(payload)
             });
-            if (!r.ok) throw new Error("HTTP " + r.status);
+            if (!r.ok) {
+                const texto = await r.text().catch(() => "");
+                throw new Error(`HTTP ${r.status}: ${texto.slice(0, 200)}`);
+            }
             const html = await r.text();
             if (mio !== ticket) return; // llegó una respuesta más nueva
             frame.srcdoc = html;
-        } catch (_) {
-            if (mio === ticket) previewError.textContent = "No pudimos generar la vista previa. Probá de nuevo en unos segundos.";
+        } catch (err) {
+            console.error("[CV Preview]", err);
+            if (mio === ticket) {
+                previewError.textContent = "No pudimos generar la vista previa. Probá de nuevo en unos segundos.";
+                previewError.style.display = "block";
+            }
         }
     }
     frame.addEventListener("load", ajustarPreview);

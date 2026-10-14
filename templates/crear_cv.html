@@ -153,8 +153,8 @@
             <div class="grid-2">
                 <label>Puesto<input type="text" data-field="puesto" maxlength="120"></label>
                 <label>Empresa<input type="text" data-field="empresa" maxlength="120"></label>
-                <label>Desde<input type="text" data-field="desde" placeholder="MM/AAAA" maxlength="30"></label>
-                <label>Hasta<input type="text" data-field="hasta" placeholder="MM/AAAA" maxlength="30"></label>
+                <label>Desde<input type="text" data-field="desde" placeholder="MM/AAAA" maxlength="7" class="fecha-mmaaaa"></label>
+                <label>Hasta<input type="text" data-field="hasta" placeholder="MM/AAAA" maxlength="7" class="fecha-mmaaaa"></label>
             </div>
             <label class="check"><input type="checkbox" data-field="actual"> Trabajo actual</label>
             <label>Descripción / logros
@@ -171,9 +171,14 @@
             <div class="grid-2">
                 <label>Título / carrera<input type="text" data-field="titulo" maxlength="150"></label>
                 <label>Institución<input type="text" data-field="institucion" maxlength="150"></label>
-                <label>Desde<input type="text" data-field="desde" placeholder="AAAA" maxlength="30"></label>
-                <label>Hasta<input type="text" data-field="hasta" placeholder="AAAA o «En curso»"
-                        maxlength="30"></label>
+                <label>Desde<input type="text" data-field="desde" placeholder="AAAA" maxlength="7" class="fecha-anio"></label>
+                <label class="label-hasta-educacion">
+                    Hasta
+                    <div class="hasta-row">
+                        <input type="text" data-field="hasta" placeholder="AAAA" maxlength="7" class="fecha-anio">
+                        <button type="button" class="btn-en-curso" data-field-toggle="hasta">En curso</button>
+                    </div>
+                </label>
             </div>
             <label>Detalle (opcional)
                 <textarea data-field="descripcion" rows="2" maxlength="800"></textarea>
@@ -205,8 +210,9 @@
             <div class="item-head"><span class="item-titulo" data-etiqueta="Curso"></span><button type="button"
                     class="btn-quitar" aria-label="Quitar">✕</button></div>
             <div class="grid-2">
-                <label>Nombre<input type="text" data-field="titulo" maxlength="150"></label>
-                <label>Institución y año<input type="text" data-field="detalle" maxlength="200"></label>
+                <label>Nombre del curso<input type="text" data-field="titulo" maxlength="150"></label>
+                <label>Institución<input type="text" data-field="institucion" maxlength="150"></label>
+                <label>Año<input type="text" data-field="anio" placeholder="AAAA" maxlength="10" class="fecha-anio"></label>
             </div>
         </div>
     </template>

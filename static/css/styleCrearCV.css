@@ -433,3 +433,52 @@ label.inline select {
         font-size: .8rem;
     }
 }
+
+/* ---- Fila hasta + botón En curso ---- */
+.hasta-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    margin-top: 6px;
+}
+
+.hasta-row input {
+    flex: 1;
+    margin-top: 0 !important;
+}
+
+.label-hasta-educacion input {
+    /* el input dentro de .hasta-row ya tiene margin-top: 0, pero el label global lo sobreescribiría */
+}
+
+.btn-en-curso {
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    border-radius: 10px;
+    padding: 0 14px;
+    font: inherit;
+    font-weight: 600;
+    font-size: .88rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .18s, color .18s;
+    flex-shrink: 0;
+}
+
+.btn-en-curso:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+.btn-en-curso.activo {
+    background: var(--accent);
+    color: #fff;
+}
+
+.error-fecha {
+    color: #e53e3e;
+    font-size: .82rem;
+    margin-top: 4px;
+    font-weight: 500;
+}

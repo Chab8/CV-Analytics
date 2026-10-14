@@ -79,6 +79,6 @@ DATOS_MUESTRA = {
         {"idioma": "Inglés", "nivel": "Avanzado"},
     ],
     "extras": [
-        {"titulo": "Data Analytics Certificate", "detalle": "Coursera, 2022"},
+        {"titulo": "Data Analytics Certificate", "institucion": "Coursera", "anio": "2022"},
     ],
 }

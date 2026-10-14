@@ -15,7 +15,7 @@ CAMPOS_PERSONAL = {
 CAMPOS_EXPERIENCIA = {"puesto": 120, "empresa": 120, "desde": 30, "hasta": 30, "descripcion": 1500}
 CAMPOS_EDUCACION = {"titulo": 150, "institucion": 150, "desde": 30, "hasta": 30, "descripcion": 800}
 CAMPOS_IDIOMAS = {"idioma": 60, "nivel": 40}
-CAMPOS_EXTRAS = {"titulo": 150, "detalle": 200}
+CAMPOS_EXTRAS = {"titulo": 150, "institucion": 150, "anio": 10}
 
 
 def _txt(valor, limite):
@@ -60,7 +60,7 @@ def limpiar_datos(raw):
     return {
         "personal": _fila(personal_raw, CAMPOS_PERSONAL),
         "experiencia": _lista(raw.get("experiencia"), CAMPOS_EXPERIENCIA, con_actual=True),
-        "educacion": _lista(raw.get("educacion"), CAMPOS_EDUCACION),
+        "educacion": _lista(raw.get("educacion"), CAMPOS_EDUCACION, con_actual=True),
         "habilidades": habilidades,
         "idiomas": _lista(raw.get("idiomas"), CAMPOS_IDIOMAS),
         "extras": _lista(raw.get("extras"), CAMPOS_EXTRAS),
