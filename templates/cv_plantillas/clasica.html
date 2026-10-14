@@ -1,0 +1,180 @@
+{% from "cv_plantillas/_macros.html" import periodo, contactos %}
+{% set p = cv.personal %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CV - {{ p.nombre or "Currículum" }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 14mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #e9ecef;
+            font-family: Georgia, "Times New Roman", serif;
+            color: #1c1c1c;
+            font-size: 10.5pt;
+            line-height: 1.45;
+        }
+
+        .hoja {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: #fff;
+            padding: 14mm;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 6mm;
+        }
+
+        h1 {
+            font-size: 24pt;
+            letter-spacing: .5px;
+        }
+
+        .titulo {
+            font-size: 12pt;
+            color: #444;
+            margin-top: 1mm;
+        }
+
+        .contacto {
+            margin-top: 3mm;
+            font-size: 9.5pt;
+            color: #333;
+        }
+
+        .contacto span+span::before {
+            content: "  •  ";
+        }
+
+        h2 {
+            font-size: 11pt;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid #1c1c1c;
+            padding-bottom: 1mm;
+            margin: 6mm 0 3mm;
+        }
+
+        .item {
+            margin-bottom: 3.5mm;
+            break-inside: avoid;
+        }
+
+        .fila {
+            display: flex;
+            justify-content: space-between;
+            gap: 8mm;
+        }
+
+        .fila strong {
+            font-size: 10.5pt;
+        }
+
+        .fecha {
+            white-space: nowrap;
+            color: #444;
+            font-size: 9.5pt;
+        }
+
+        .sub {
+            font-style: italic;
+            color: #333;
+        }
+
+        .desc {
+            white-space: pre-line;
+            margin-top: 1mm;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2mm 4mm;
+        }
+
+        @media print {
+            body {
+                background: none;
+            }
+
+            .hoja {
+                width: auto;
+                min-height: 0;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hoja">
+        <header>
+            <h1>{{ p.nombre }}</h1>
+            {% if p.titulo %}<div class="titulo">{{ p.titulo }}</div>{% endif %}
+            <div class="contacto">{{ contactos(p) }}</div>
+        </header>
+
+        {% if p.resumen %}
+        <h2>Perfil</h2>
+        <p class="desc">{{ p.resumen }}</p>
+        {% endif %}
+
+        {% if cv.experiencia %}
+        <h2>Experiencia laboral</h2>
+        {% for e in cv.experiencia %}
+        <div class="item">
+            <div class="fila"><strong>{{ e.puesto }}</strong><span class="fecha">{{ periodo(e) }}</span></div>
+            {% if e.empresa %}<div class="sub">{{ e.empresa }}</div>{% endif %}
+            {% if e.descripcion %}<p class="desc">{{ e.descripcion }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if cv.educacion %}
+        <h2>Educación</h2>
+        {% for e in cv.educacion %}
+        <div class="item">
+            <div class="fila"><strong>{{ e.titulo }}</strong><span class="fecha">{{ periodo(e) }}</span></div>
+            {% if e.institucion %}<div class="sub">{{ e.institucion }}</div>{% endif %}
+            {% if e.descripcion %}<p class="desc">{{ e.descripcion }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if cv.habilidades %}
+        <h2>Habilidades</h2>
+        <div class="tags">{% for h in cv.habilidades %}<span>{{ h }}</span>{% endfor %}</div>
+        {% endif %}
+
+        {% if cv.idiomas %}
+        <h2>Idiomas</h2>
+        <div class="tags">{% for i in cv.idiomas %}<span>{{ i.idioma }}{% if i.nivel %} ({{ i.nivel }}){% endif
+                %}</span>{% endfor %}</div>
+        {% endif %}
+
+        {% if cv.extras %}
+        <h2>Cursos y certificaciones</h2>
+        {% for x in cv.extras %}
+        <div class="item"><strong>{{ x.titulo }}</strong>{% if x.detalle %} — <span class="sub">{{ x.detalle }}</span>{%
+            endif %}</div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</body>
+
+</html>

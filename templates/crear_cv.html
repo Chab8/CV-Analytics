@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crear mi CV - CV Analytics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleCrearCV.css') }}">
+    <script defer src="{{ url_for('static', filename='js/modoOscuro.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/crearCV.js') }}"></script>
+</head>
+
+<body>
+    <header class="header">
+        <img src="{{ url_for('static', filename='img/CVAnalyticsLogo.png') }}" alt="CV Analytics Logo"
+            class="logo logo-light">
+        <img src="{{ url_for('static', filename='img/CVAnalyticsLogoBlanco.png') }}" alt="CV Analytics Logo Blanco"
+            class="logo logo-dark">
+        <a href="/" class="home-button" aria-label="Ir al inicio">
+            <img src="{{ url_for('static', filename='img/Home_Btn.png') }}" alt="Home">
+        </a>
+    </header>
+
+    <main class="wizard">
+        <ol class="stepper" id="stepper" aria-label="Pasos"></ol>
+        <div class="barra" aria-hidden="true">
+            <div id="barra-fill"></div>
+        </div>
+
+        <form id="cv-form" class="panel" data-render-url="{{ url_for('crear_cv.renderizar') }}" novalidate>
+
+            <!-- 0. PLANTILLA -->
+            <section class="paso" data-titulo="Plantilla">
+                <h1>Elegí tu plantilla</h1>
+                <p class="ayuda">Podés cambiarla en cualquier momento, tus datos se conservan.</p>
+                <div class="plantillas-grid">
+                    {% for p in plantillas %}
+                    <label class="plantilla-card">
+                        <input type="radio" name="plantilla" value="{{ p.id }}" {% if loop.first %}checked{% endif %}>
+                        <div class="card-body">
+                            <div class="miniatura">
+                                <iframe src="{{ url_for('crear_cv.muestra', plantilla_id=p.id) }}"
+                                    title="Vista previa {{ p.nombre }}" tabindex="-1" loading="lazy"></iframe>
+                            </div>
+                            <strong>{{ p.nombre }}</strong>
+                            <span>{{ p.descripcion }}</span>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- 1. INFORMACIÓN PERSONAL -->
+            <section class="paso" data-titulo="Información personal" hidden>
+                <h1>Información personal</h1>
+                <p class="ayuda">Los campos con * son obligatorios.</p>
+                <div class="grid-2">
+                    <label>Nombre completo *<input type="text" data-path="personal.nombre" autocomplete="name"
+                            maxlength="120"></label>
+                    <label>Título profesional<input type="text" data-path="personal.titulo"
+                            placeholder="Ej: Analista de Datos" maxlength="120"></label>
+                    <label>Email *<input type="email" data-path="personal.email" autocomplete="email"
+                            maxlength="120"></label>
+                    <label>Teléfono<input type="tel" data-path="personal.telefono" autocomplete="tel"
+                            maxlength="40"></label>
+                    <label>Ubicación<input type="text" data-path="personal.ubicacion" placeholder="Ciudad, País"
+                            maxlength="120"></label>
+                    <label>LinkedIn<input type="text" data-path="personal.linkedin"
+                            placeholder="linkedin.com/in/tu-usuario" maxlength="200"></label>
+                    <label>Sitio web / portfolio<input type="text" data-path="personal.web" maxlength="200"></label>
+                </div>
+                <label>Perfil profesional
+                    <textarea data-path="personal.resumen" rows="5" maxlength="1500"
+                        placeholder="2 o 3 oraciones sobre quién sos y qué buscás."></textarea>
+                </label>
+                <p class="error-paso" role="alert"></p>
+            </section>
+
+            <!-- 2. EXPERIENCIA -->
+            <section class="paso" data-titulo="Experiencia" hidden>
+                <h1>Experiencia laboral</h1>
+                <p class="ayuda">Empezá por la más reciente. Si todavía no tenés experiencia, podés saltear este paso.
+                </p>
+                <div class="lista" data-list="experiencia"></div>
+                <button type="button" class="btn btn-secundario" data-add="experiencia">＋ Agregar experiencia</button>
+            </section>
+
+            <!-- 3. EDUCACIÓN -->
+            <section class="paso" data-titulo="Educación" hidden>
+                <h1>Educación</h1>
+                <div class="lista" data-list="educacion"></div>
+                <button type="button" class="btn btn-secundario" data-add="educacion">＋ Agregar estudios</button>
+            </section>
+
+            <!-- 4. HABILIDADES E IDIOMAS -->
+            <section class="paso" data-titulo="Habilidades" hidden>
+                <h1>Habilidades e idiomas</h1>
+                <label>Habilidades
+                    <div class="tag-entrada">
+                        <input type="text" id="habilidad-input" placeholder="Escribí una y presioná Enter"
+                            maxlength="60">
+                        <button type="button" class="btn btn-secundario" id="habilidad-add">Agregar</button>
+                    </div>
+                </label>
+                <div class="tags" id="tags"></div>
+
+                <h2>Idiomas</h2>
+                <div class="lista" data-list="idiomas"></div>
+                <button type="button" class="btn btn-secundario" data-add="idiomas">＋ Agregar idioma</button>
+            </section>
+
+            <!-- 5. EXTRAS -->
+            <section class="paso" data-titulo="Cursos" hidden>
+                <h1>Cursos y certificaciones</h1>
+                <p class="ayuda">Opcional.</p>
+                <div class="lista" data-list="extras"></div>
+                <button type="button" class="btn btn-secundario" data-add="extras">＋ Agregar curso</button>
+            </section>
+
+            <!-- 6. RESULTADO -->
+            <section class="paso" data-titulo="Tu CV" hidden>
+                <h1>¡Tu CV está listo!</h1>
+                <div class="barra-acciones">
+                    <label class="inline">Plantilla
+                        <select id="cambiar-plantilla">
+                            {% for p in plantillas %}<option value="{{ p.id }}">{{ p.nombre }}</option>{% endfor %}
+                        </select>
+                    </label>
+                    <button type="button" class="btn btn-primario" id="btn-imprimir">Imprimir / Guardar PDF</button>
+                </div>
+                <p class="ayuda">En el diálogo de impresión elegí «Guardar como PDF».</p>
+                <p class="error-paso" id="preview-error" role="alert"></p>
+                <div class="preview-wrap" id="preview-wrap">
+                    <iframe id="cv-preview" title="Vista previa de tu CV"></iframe>
+                </div>
+                <button type="button" class="btn-link" id="btn-reiniciar">Empezar de nuevo (borra el borrador)</button>
+            </section>
+
+            <div class="navegacion">
+                <button type="button" class="btn btn-secundario" id="btn-atras">← Atrás</button>
+                <button type="button" class="btn btn-primario" id="btn-siguiente">Siguiente →</button>
+            </div>
+        </form>
+        <p class="nota">Tu borrador se guarda solo en este navegador.</p>
+    </main>
+
+    <!-- Plantillas de ítems repetibles -->
+    <template id="tpl-experiencia">
+        <div class="item">
+            <div class="item-head"><span class="item-titulo" data-etiqueta="Experiencia"></span><button type="button"
+                    class="btn-quitar" aria-label="Quitar">✕</button></div>
+            <div class="grid-2">
+                <label>Puesto<input type="text" data-field="puesto" maxlength="120"></label>
+                <label>Empresa<input type="text" data-field="empresa" maxlength="120"></label>
+                <label>Desde<input type="text" data-field="desde" placeholder="MM/AAAA" maxlength="30"></label>
+                <label>Hasta<input type="text" data-field="hasta" placeholder="MM/AAAA" maxlength="30"></label>
+            </div>
+            <label class="check"><input type="checkbox" data-field="actual"> Trabajo actual</label>
+            <label>Descripción / logros
+                <textarea data-field="descripcion" rows="4" maxlength="1500"
+                    placeholder="Una línea por logro. Incluí números cuando puedas."></textarea>
+            </label>
+        </div>
+    </template>
+
+    <template id="tpl-educacion">
+        <div class="item">
+            <div class="item-head"><span class="item-titulo" data-etiqueta="Estudio"></span><button type="button"
+                    class="btn-quitar" aria-label="Quitar">✕</button></div>
+            <div class="grid-2">
+                <label>Título / carrera<input type="text" data-field="titulo" maxlength="150"></label>
+                <label>Institución<input type="text" data-field="institucion" maxlength="150"></label>
+                <label>Desde<input type="text" data-field="desde" placeholder="AAAA" maxlength="30"></label>
+                <label>Hasta<input type="text" data-field="hasta" placeholder="AAAA o «En curso»"
+                        maxlength="30"></label>
+            </div>
+            <label>Detalle (opcional)
+                <textarea data-field="descripcion" rows="2" maxlength="800"></textarea>
+            </label>
+        </div>
+    </template>
+
+    <template id="tpl-idiomas">
+        <div class="item item-compacto">
+            <div class="item-head"><span class="item-titulo" data-etiqueta="Idioma"></span><button type="button"
+                    class="btn-quitar" aria-label="Quitar">✕</button></div>
+            <div class="grid-2">
+                <label>Idioma<input type="text" data-field="idioma" maxlength="60"></label>
+                <label>Nivel
+                    <select data-field="nivel">
+                        <option value="">Elegí…</option>
+                        <option>Básico</option>
+                        <option>Intermedio</option>
+                        <option>Avanzado</option>
+                        <option>Nativo</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-extras">
+        <div class="item item-compacto">
+            <div class="item-head"><span class="item-titulo" data-etiqueta="Curso"></span><button type="button"
+                    class="btn-quitar" aria-label="Quitar">✕</button></div>
+            <div class="grid-2">
+                <label>Nombre<input type="text" data-field="titulo" maxlength="150"></label>
+                <label>Institución y año<input type="text" data-field="detalle" maxlength="200"></label>
+            </div>
+        </div>
+    </template>
+</body>
+
+</html>

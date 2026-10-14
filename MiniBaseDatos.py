@@ -5,6 +5,7 @@ import LectorDeTextos
 from ComparadorDeTexto import comparar_textos
 import google.generativeai as genai
 from dotenv import load_dotenv
+from crear_cv import crear_cv_bp
 
 # Cargar variables del archivo .env en local
 load_dotenv()
@@ -186,6 +187,9 @@ def comparar():
         print(f"Error al eliminar archivos: {e}")
 
     return render_template("resultado.html", similitud=similitud, feedback=feedback, sugerencias=sugerencias)
+
+
+app.register_blueprint(crear_cv_bp)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)

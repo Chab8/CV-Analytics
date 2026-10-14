@@ -1,0 +1,13 @@
+{# Macros compartidas por las plantillas de CV (no es una plantilla seleccionable) #}
+{% macro periodo(x) -%}
+{%- if x.desde or x.hasta or x.actual -%}
+{{ x.desde }}{% if x.desde and (x.hasta or x.actual) %} – {% endif %}{% if x.actual %}Actualidad{% else %}{{ x.hasta
+}}{% endif %}
+{%- endif -%}
+{%- endmacro %}
+
+{% macro contactos(p) -%}
+{%- for dato in [p.email, p.telefono, p.ubicacion, p.linkedin, p.web] if dato -%}
+<span>{{ dato }}</span>
+{%- endfor -%}
+{%- endmacro %}
