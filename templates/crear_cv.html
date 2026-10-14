@@ -12,13 +12,18 @@
 </head>
 
 <body>
-    <header class="header">
-        <img src="{{ url_for('static', filename='img/CVAnalyticsLogo.png') }}" alt="CV Analytics Logo"
+    <header class="header header-cv">
+        <img src="{{ url_for('static', filename='icons/CV Analytics logo.svg') }}" alt="CV Analytics Logo"
             class="logo logo-light">
-        <img src="{{ url_for('static', filename='img/CVAnalyticsLogoBlanco.png') }}" alt="CV Analytics Logo Blanco"
+        <img src="{{ url_for('static', filename='icons/cv analytics logo white.svg') }}" alt="CV Analytics Logo Blanco"
             class="logo logo-dark">
         <a href="/" class="home-button" aria-label="Ir al inicio">
-            <img src="{{ url_for('static', filename='img/Home_Btn.png') }}" alt="Home">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="home-icon" aria-hidden="true">
+                <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z"/>
+                <polyline points="9 21 9 12 15 12 15 21"/>
+            </svg>
         </a>
     </header>
 
@@ -71,7 +76,7 @@
                     <label>Sitio web / portfolio<input type="text" data-path="personal.web" maxlength="200"></label>
                 </div>
                 <label>Perfil profesional
-                    <textarea data-path="personal.resumen" rows="5" maxlength="1500"
+                    <textarea data-path="personal.resumen" rows="4" maxlength="1500"
                         placeholder="2 o 3 oraciones sobre quién sos y qué buscás."></textarea>
                 </label>
                 <p class="error-paso" role="alert"></p>
@@ -80,17 +85,22 @@
             <!-- 2. EXPERIENCIA -->
             <section class="paso" data-titulo="Experiencia" hidden>
                 <h1>Experiencia laboral</h1>
-                <p class="ayuda">Empezá por la más reciente. Si todavía no tenés experiencia, podés saltear este paso.
-                </p>
+                <p class="ayuda">Empezá por la más reciente. Si todavía no tenés experiencia, podés saltear este paso.</p>
                 <div class="lista" data-list="experiencia"></div>
-                <button type="button" class="btn btn-secundario" data-add="experiencia">＋ Agregar experiencia</button>
+                <button type="button" class="btn-agregar" data-add="experiencia">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Agregar experiencia
+                </button>
             </section>
 
             <!-- 3. EDUCACIÓN -->
             <section class="paso" data-titulo="Educación" hidden>
                 <h1>Educación</h1>
                 <div class="lista" data-list="educacion"></div>
-                <button type="button" class="btn btn-secundario" data-add="educacion">＋ Agregar estudios</button>
+                <button type="button" class="btn-agregar" data-add="educacion">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Agregar estudios
+                </button>
             </section>
 
             <!-- 4. HABILIDADES E IDIOMAS -->
@@ -107,7 +117,10 @@
 
                 <h2>Idiomas</h2>
                 <div class="lista" data-list="idiomas"></div>
-                <button type="button" class="btn btn-secundario" data-add="idiomas">＋ Agregar idioma</button>
+                <button type="button" class="btn-agregar" data-add="idiomas">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Agregar idioma
+                </button>
             </section>
 
             <!-- 5. EXTRAS -->
@@ -115,7 +128,10 @@
                 <h1>Cursos y certificaciones</h1>
                 <p class="ayuda">Opcional.</p>
                 <div class="lista" data-list="extras"></div>
-                <button type="button" class="btn btn-secundario" data-add="extras">＋ Agregar curso</button>
+                <button type="button" class="btn-agregar" data-add="extras">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Agregar curso
+                </button>
             </section>
 
             <!-- 6. RESULTADO -->
@@ -127,29 +143,40 @@
                             {% for p in plantillas %}<option value="{{ p.id }}">{{ p.nombre }}</option>{% endfor %}
                         </select>
                     </label>
-                    <button type="button" class="btn btn-primario" id="btn-imprimir">Imprimir / Guardar PDF</button>
+                    <button type="button" class="btn btn-primario" id="btn-descargar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Descargar PDF
+                    </button>
                 </div>
-                <p class="ayuda">En el diálogo de impresión elegí «Guardar como PDF».</p>
                 <p class="error-paso" id="preview-error" role="alert"></p>
                 <div class="preview-wrap" id="preview-wrap">
                     <iframe id="cv-preview" title="Vista previa de tu CV"></iframe>
                 </div>
-                <button type="button" class="btn-link" id="btn-reiniciar">Empezar de nuevo (borra el borrador)</button>
+                <button type="button" class="btn-reiniciar" id="btn-reiniciar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+                    Empezar de nuevo
+                </button>
             </section>
 
             <div class="navegacion">
-                <button type="button" class="btn btn-secundario" id="btn-atras">← Atrás</button>
-                <button type="button" class="btn btn-primario" id="btn-siguiente">Siguiente →</button>
+                <button type="button" class="btn btn-secundario" id="btn-atras">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><polyline points="15 18 9 12 15 6"/></svg>
+                    Atrás
+                </button>
+                <button type="button" class="btn btn-primario" id="btn-siguiente">Siguiente
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-left:4px"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
             </div>
         </form>
-        <p class="nota">Tu borrador se guarda solo en este navegador.</p>
     </main>
 
     <!-- Plantillas de ítems repetibles -->
     <template id="tpl-experiencia">
         <div class="item">
             <div class="item-head"><span class="item-titulo" data-etiqueta="Experiencia"></span><button type="button"
-                    class="btn-quitar" aria-label="Quitar">✕</button></div>
+                    class="btn-quitar" aria-label="Quitar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button></div>
             <div class="grid-2">
                 <label>Puesto<input type="text" data-field="puesto" maxlength="120"></label>
                 <label>Empresa<input type="text" data-field="empresa" maxlength="120"></label>
@@ -158,7 +185,7 @@
             </div>
             <label class="check"><input type="checkbox" data-field="actual"> Trabajo actual</label>
             <label>Descripción / logros
-                <textarea data-field="descripcion" rows="4" maxlength="1500"
+                <textarea data-field="descripcion" rows="3" maxlength="1500"
                     placeholder="Una línea por logro. Incluí números cuando puedas."></textarea>
             </label>
         </div>
@@ -167,7 +194,9 @@
     <template id="tpl-educacion">
         <div class="item">
             <div class="item-head"><span class="item-titulo" data-etiqueta="Estudio"></span><button type="button"
-                    class="btn-quitar" aria-label="Quitar">✕</button></div>
+                    class="btn-quitar" aria-label="Quitar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button></div>
             <div class="grid-2">
                 <label>Título / carrera<input type="text" data-field="titulo" maxlength="150"></label>
                 <label>Institución<input type="text" data-field="institucion" maxlength="150"></label>
@@ -189,7 +218,9 @@
     <template id="tpl-idiomas">
         <div class="item item-compacto">
             <div class="item-head"><span class="item-titulo" data-etiqueta="Idioma"></span><button type="button"
-                    class="btn-quitar" aria-label="Quitar">✕</button></div>
+                    class="btn-quitar" aria-label="Quitar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button></div>
             <div class="grid-2">
                 <label>Idioma<input type="text" data-field="idioma" maxlength="60"></label>
                 <label>Nivel
@@ -208,7 +239,9 @@
     <template id="tpl-extras">
         <div class="item item-compacto">
             <div class="item-head"><span class="item-titulo" data-etiqueta="Curso"></span><button type="button"
-                    class="btn-quitar" aria-label="Quitar">✕</button></div>
+                    class="btn-quitar" aria-label="Quitar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button></div>
             <div class="grid-2">
                 <label>Nombre del curso<input type="text" data-field="titulo" maxlength="150"></label>
                 <label>Institución<input type="text" data-field="institucion" maxlength="150"></label>

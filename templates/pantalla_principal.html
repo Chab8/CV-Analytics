@@ -13,9 +13,9 @@
     <!-- HEADER -->
     <header class="header">
         <div class="header-scale">
-            <img src="{{ url_for('static', filename='img/CVAnalyticsLogo.png') }}" alt="CV Analytics Logo"
+            <img src="{{ url_for('static', filename='icons/CV Analytics logo.svg') }}" alt="CV Analytics Logo"
                 class="logo logo-light">
-            <img src="{{ url_for('static', filename='img/CVAnalyticsLogoBlanco.png') }}" alt="CV Analytics Logo Blanco"
+            <img src="{{ url_for('static', filename='icons/cv analytics logo white.svg') }}" alt="CV Analytics Logo Blanco"
                 class="logo logo-dark">
             <nav class="nav">
                 <a href="#filtrado">Filtrado de CV</a>
@@ -111,16 +111,16 @@
 
     <!-- FRASE -->
     <section class="frase">
-        <blockquote>“Donde tus <span>habilidades</span> encuentran su lugar”</blockquote>
+        <blockquote>"Donde tus <span>habilidades</span> encuentran su lugar"</blockquote>
     </section>
 
     <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-left">
-            <img src="{{ url_for('static', filename='img/CVAnalyticsLogo.png') }}" alt="Logo Normal"
-                class="logo-footer logo-dark">
-            <img src="{{ url_for('static', filename='img/CVAnalyticsLogoBlanco.png') }}" alt="Logo Blanco"
+            <img src="{{ url_for('static', filename='icons/CV Analytics logo.svg') }}" alt="Logo Normal"
                 class="logo-footer logo-light">
+            <img src="{{ url_for('static', filename='icons/cv analytics logo white.svg') }}" alt="Logo Blanco"
+                class="logo-footer logo-dark">
         </div>
 
         <div class="footer-links">
@@ -131,12 +131,17 @@
 
         <div class="footer-contacto">
             <div class="redes">
-                <img src="{{ url_for('static', filename='img/Contacto.png') }}" alt="Contacto Normal"
-                    class="contacto-light">
-                <img src="{{ url_for('static', filename='img/Contacto Blanco.png') }}" alt="Contacto Blanco"
-                    class="contacto-dark">
+                <a href="mailto:" class="red-icon" aria-label="Mail">
+                    <img src="{{ url_for('static', filename='icons/mail.svg') }}" alt="Mail">
+                </a>
+                <a href="https://www.linkedin.com/company/cv-analytics/" target="_blank" rel="noopener" class="red-icon" aria-label="LinkedIn">
+                    <img src="{{ url_for('static', filename='icons/Linkedin.svg') }}" alt="LinkedIn">
+                </a>
+                <a href="#" class="red-icon" aria-label="Instagram">
+                    <img src="{{ url_for('static', filename='icons/Instagram.svg') }}" alt="Instagram">
+                </a>
             </div>
-            <a>Contáctate con nosotros</a>
+            <span class="footer-contacto-label">Contáctate con nosotros</span>
         </div>
     </footer>
 

@@ -361,10 +361,17 @@ html {
 
 .redes {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
+    align-items: center;
 }
 
-.redes img { height: 25px; }
+.redes img { height: 30px; width: 30px; }
+
+.footer-contacto-label {
+    color: #ddd;
+    font-size: .9rem;
+    text-align: right;
+}
 
 
 
@@ -671,9 +678,8 @@ gap:.5rem;
 }
 
 .redes { display:flex; gap:1rem; align-items:center; }
-.contacto-light { display:block; }
-.contacto-dark { display:none; }
 .footer-contacto a { color: #ddd; text-decoration:none; }
+.footer-contacto-label { color: #bbb; font-size: .88rem; }
 
 /* ---------- RESPONSIVE / ADAPTACIONES ---------- */
 @media (max-width: 1200px){
@@ -776,8 +782,7 @@ box-shadow: 0 -2px 24px rgba(2,16,20,0.04);
 
 body.dark-mode .footer-links a { color: #0a3040; }
 body.dark-mode .footer-links a:hover { color: #00334d; }
-body.dark-mode .contacto-light { display:none; }
-body.dark-mode .contacto-dark { display:block; }
+body.dark-mode .footer-contacto-label { color: #555; }
 
 /* small visual polish for dark mode: increase contrast of nav links */
 body.dark-mode .nav a { color: #f7fbff; }

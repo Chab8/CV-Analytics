@@ -372,7 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
     frame.addEventListener("load", ajustarPreview);
     window.addEventListener("resize", () => { escalarMiniaturas(); ajustarPreview(); });
 
-    document.getElementById("btn-imprimir").addEventListener("click", () => {
+    document.getElementById("btn-descargar").addEventListener("click", () => {
         frame.contentWindow.focus();
         frame.contentWindow.print();
     });

@@ -20,10 +20,10 @@ line-height:1.4;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:28px 56px;
+padding:20px 40px;
 }
-.logo { height:72px; }
-.home-button img { height:44px; }
+.logo { height:60px; }
+.home-button img { height:38px; }
 
 /* FORM */
 .formulario { display:flex; justify-content:center; padding:48px 20px 120px; }
