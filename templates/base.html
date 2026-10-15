@@ -7,14 +7,14 @@
     <title>{% block title %}CV Analytics{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
     <script defer src="{{ url_for('static', filename='js/modoOscuro.js') }}"></script>
     {% block head %}{% endblock %}
 </head>
 
-<body>
+<body class="{% block body_class %}{% endblock %}">
     <script>try { if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark-mode") } catch (e) { }</script>
 
     <header class="header">
@@ -27,7 +27,8 @@
         <nav class="nav" aria-label="Principal">
             <a href="{{ url_for('subir') }}" {% if request.endpoint=='subir' %} aria-current="page" {% endif %}>Analizar
                 CV</a>
-            <a href="{{ url_for('crear_cv.wizard') }}">Crear CV</a>
+            <a href="{{ url_for('crear_cv.wizard') }}" {% if request.endpoint=='crear_cv.wizard' %} aria-current="page"
+                {% endif %}>Crear CV</a>
             <a href="{{ url_for('index') }}#como">Cómo funciona</a>
             <button class="modo-oscuro-btn" type="button" aria-label="Cambiar entre modo claro y oscuro">
                 <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

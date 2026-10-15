@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ---------------- Estado ---------------- */
     const vacio = () => ({
         plantilla: radios[0] ? radios[0].value : null,
-        paso: 0,
+        paso: 0, max: 0,
         personal: { nombre: "", titulo: "", email: "", telefono: "", ubicacion: "", linkedin: "", web: "", resumen: "" },
         experiencia: [], educacion: [], habilidades: [], idiomas: [], extras: []
     });
@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (_) { /* borrador corrupto o storage bloqueado: arrancamos de cero */ }
         if (!radios.some(r => r.value === base.plantilla)) base.plantilla = vacio().plantilla;
         base.paso = Math.max(0, Math.min(Number(base.paso) || 0, ULTIMO));
+        base.max = Math.max(base.paso, Math.min(Number(base.max) || 0, ULTIMO));
         return base;
     }
 
@@ -389,7 +390,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const b = document.createElement("button");
         b.type = "button";
         b.textContent = `${i + 1}. ${p.dataset.titulo}`;
-        b.addEventListener("click", () => { if (i < estado.paso) irA(i); });
+        b.addEventListener("click", () => {
+            if (i > estado.max || i === estado.paso) return;
+            if (i > estado.paso && !validar(estado.paso)) return;
+            irA(i);
+        });
         li.append(b);
         stepper.append(li);
     });
@@ -410,10 +415,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function irA(n) {
         estado.paso = Math.max(0, Math.min(n, ULTIMO));
+        estado.max = Math.max(estado.max || 0, estado.paso);
+        form.querySelector(".cuerpo").scrollTop = 0;
         pasos.forEach((p, i) => { p.hidden = i !== estado.paso; });
         [...stepper.querySelectorAll("button")].forEach((b, i) => {
             b.classList.toggle("actual", i === estado.paso);
-            b.classList.toggle("hecho", i < estado.paso);
+            b.classList.toggle("hecho", i <= estado.max && i !== estado.paso);
+            b.disabled = i > estado.max;
             if (i === estado.paso) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
         });
         barraFill.style.width = ((estado.paso + 1) / pasos.length * 100) + "%";

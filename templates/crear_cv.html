@@ -1,44 +1,22 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends "base.html" %}
+{% block title %}Crear mi CV · CV Analytics{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styleCrearCV.css') }}">{% endblock %}
+{% block body_class %}page-wizard{% endblock %}
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Crear mi CV - CV Analytics</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleCrearCV.css') }}">
-    <script defer src="{{ url_for('static', filename='js/modoOscuro.js') }}"></script>
-    <script defer src="{{ url_for('static', filename='js/crearCV.js') }}"></script>
-</head>
+{% block content %}
+<main class="wizard">
+    <ol class="stepper" id="stepper" aria-label="Pasos"></ol>
+    <div class="barra" aria-hidden="true">
+        <div id="barra-fill"></div>
+    </div>
 
-<body>
-    <header class="header header-cv">
-        <img src="{{ url_for('static', filename='icons/CV Analytics logo.svg') }}" alt="CV Analytics Logo"
-            class="logo logo-light">
-        <img src="{{ url_for('static', filename='icons/cv analytics logo white.svg') }}" alt="CV Analytics Logo Blanco"
-            class="logo logo-dark">
-        <a href="/" class="home-button" aria-label="Ir al inicio">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="home-icon"
-                aria-hidden="true">
-                <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z" />
-                <polyline points="9 21 9 12 15 12 15 21" />
-            </svg>
-        </a>
-    </header>
+    <form id="cv-form" class="panel" data-render-url="{{ url_for('crear_cv.renderizar') }}" novalidate>
+        <div class="cuerpo">
 
-    <main class="wizard">
-        <ol class="stepper" id="stepper" aria-label="Pasos"></ol>
-        <div class="barra" aria-hidden="true">
-            <div id="barra-fill"></div>
-        </div>
-
-        <form id="cv-form" class="panel" data-render-url="{{ url_for('crear_cv.renderizar') }}" novalidate>
-
-            <!-- 0. PLANTILLA -->
             <section class="paso" data-titulo="Plantilla">
                 <h1>Elegí tu plantilla</h1>
-                <p class="ayuda">Podés cambiarla en cualquier momento, tus datos se conservan.</p>
+                <p class="ayuda">Podés cambiarla cuando quieras, tus datos se conservan.</p>
                 <div class="plantillas-grid">
                     {% for p in plantillas %}
                     <label class="plantilla-card">
@@ -56,9 +34,8 @@
                 </div>
             </section>
 
-            <!-- 1. INFORMACIÓN PERSONAL -->
-            <section class="paso" data-titulo="Información personal" hidden>
-                <h1>Información personal</h1>
+            <section class="paso" data-titulo="Datos personales" hidden>
+                <h1>Datos personales</h1>
                 <p class="ayuda">Los campos con * son obligatorios.</p>
                 <div class="grid-2">
                     <label>Nombre completo *<input type="text" data-path="personal.nombre" autocomplete="name"
@@ -73,46 +50,29 @@
                             maxlength="120"></label>
                     <label>LinkedIn<input type="text" data-path="personal.linkedin"
                             placeholder="linkedin.com/in/tu-usuario" maxlength="200"></label>
-                    <label>Sitio web / portfolio<input type="text" data-path="personal.web" maxlength="200"></label>
                 </div>
+                <label>Sitio web / portfolio<input type="text" data-path="personal.web" maxlength="200"></label>
                 <label>Perfil profesional
-                    <textarea data-path="personal.resumen" rows="4" maxlength="1500"
+                    <textarea data-path="personal.resumen" rows="3" maxlength="1500"
                         placeholder="2 o 3 oraciones sobre quién sos y qué buscás."></textarea>
                 </label>
                 <p class="error-paso" role="alert"></p>
             </section>
 
-            <!-- 2. EXPERIENCIA -->
             <section class="paso" data-titulo="Experiencia" hidden>
                 <h1>Experiencia laboral</h1>
-                <p class="ayuda">Empezá por la más reciente. Si todavía no tenés experiencia, podés saltear este paso.
-                </p>
+                <p class="ayuda">Empezá por la más reciente. Si todavía no tenés, podés saltear este paso.</p>
                 <div class="lista" data-list="experiencia"></div>
-                <button type="button" class="btn-agregar" data-add="experiencia">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                    Agregar experiencia
-                </button>
+                <button type="button" class="btn-agregar" data-add="experiencia">+ Agregar experiencia</button>
             </section>
 
-            <!-- 3. EDUCACIÓN -->
             <section class="paso" data-titulo="Educación" hidden>
                 <h1>Educación</h1>
+                <p class="ayuda">Carreras, cursos largos o estudios en curso.</p>
                 <div class="lista" data-list="educacion"></div>
-                <button type="button" class="btn-agregar" data-add="educacion">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                    Agregar estudios
-                </button>
+                <button type="button" class="btn-agregar" data-add="educacion">+ Agregar estudios</button>
             </section>
 
-            <!-- 4. HABILIDADES E IDIOMAS -->
             <section class="paso" data-titulo="Habilidades" hidden>
                 <h1>Habilidades e idiomas</h1>
                 <label>Habilidades
@@ -123,188 +83,114 @@
                     </div>
                 </label>
                 <div class="tags" id="tags"></div>
-
                 <h2>Idiomas</h2>
                 <div class="lista" data-list="idiomas"></div>
-                <button type="button" class="btn-agregar" data-add="idiomas">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                    Agregar idioma
-                </button>
+                <button type="button" class="btn-agregar" data-add="idiomas">+ Agregar idioma</button>
             </section>
 
-            <!-- 5. EXTRAS -->
             <section class="paso" data-titulo="Cursos" hidden>
                 <h1>Cursos y certificaciones</h1>
                 <p class="ayuda">Opcional.</p>
                 <div class="lista" data-list="extras"></div>
-                <button type="button" class="btn-agregar" data-add="extras">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                    Agregar curso
-                </button>
+                <button type="button" class="btn-agregar" data-add="extras">+ Agregar curso</button>
             </section>
 
-            <!-- 6. RESULTADO -->
             <section class="paso" data-titulo="Tu CV" hidden>
-                <h1>¡Tu CV está listo!</h1>
                 <div class="barra-acciones">
-                    <label class="inline">Plantilla
-                        <select id="cambiar-plantilla">
-                            {% for p in plantillas %}<option value="{{ p.id }}">{{ p.nombre }}</option>{% endfor %}
-                        </select>
-                    </label>
-                    <button type="button" class="btn btn-primario" id="btn-descargar">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
-                            style="vertical-align:-3px;margin-right:6px">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
-                        Descargar PDF
-                    </button>
+                    <h1>¡Tu CV está listo!</h1>
+                    <div class="acciones">
+                        <label class="inline">Plantilla
+                            <select id="cambiar-plantilla">{% for p in plantillas %}<option value="{{ p.id }}">{{
+                                    p.nombre }}</option>{% endfor %}</select>
+                        </label>
+                        <button type="button" class="btn btn-primario" id="btn-descargar">Descargar PDF</button>
+                    </div>
                 </div>
                 <p class="error-paso" id="preview-error" role="alert"></p>
-                <div class="preview-wrap" id="preview-wrap">
-                    <iframe id="cv-preview" title="Vista previa de tu CV"></iframe>
-                </div>
-                <button type="button" class="btn-reiniciar" id="btn-reiniciar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
-                        style="vertical-align:-2px;margin-right:5px">
-                        <polyline points="1 4 1 10 7 10" />
-                        <path d="M3.51 15a9 9 0 1 0 .49-4.95" />
-                    </svg>
-                    Empezar de nuevo
-                </button>
+                <div class="preview-wrap" id="preview-wrap"><iframe id="cv-preview"
+                        title="Vista previa de tu CV"></iframe></div>
+                <button type="button" class="btn-reiniciar" id="btn-reiniciar">Empezar de nuevo</button>
             </section>
+        </div>
 
-            <div class="navegacion">
-                <button type="button" class="btn btn-secundario" id="btn-atras">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        style="vertical-align:-2px;margin-right:4px">
-                        <polyline points="15 18 9 12 15 6" />
-                    </svg>
-                    Atrás
-                </button>
-                <button type="button" class="btn btn-primario" id="btn-siguiente">Siguiente
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        style="vertical-align:-2px;margin-left:4px">
-                        <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                </button>
-            </div>
-        </form>
-    </main>
+        <div class="navegacion">
+            <button type="button" class="btn btn-secundario" id="btn-atras">← Atrás</button>
+            <button type="button" class="btn btn-primario" id="btn-siguiente">Siguiente →</button>
+        </div>
+    </form>
+</main>
 
-    <!-- Plantillas de ítems repetibles -->
-    <template id="tpl-experiencia">
-        <div class="item">
-            <div class="item-head"><span class="item-titulo" data-etiqueta="Experiencia"></span><button type="button"
-                    class="btn-quitar" aria-label="Quitar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                </button></div>
-            <div class="grid-2">
-                <label>Puesto<input type="text" data-field="puesto" maxlength="120"></label>
-                <label>Empresa<input type="text" data-field="empresa" maxlength="120"></label>
-                <label>Desde<input type="text" data-field="desde" placeholder="MM/AAAA" maxlength="7"
-                        class="fecha-mmaaaa"></label>
-                <label>Hasta<input type="text" data-field="hasta" placeholder="MM/AAAA" maxlength="7"
-                        class="fecha-mmaaaa"></label>
-            </div>
-            <label class="check"><input type="checkbox" data-field="actual"> Trabajo actual</label>
-            <label>Descripción / logros
-                <textarea data-field="descripcion" rows="3" maxlength="1500"
-                    placeholder="Una línea por logro. Incluí números cuando puedas."></textarea>
+<template id="tpl-experiencia">
+    <div class="item">
+        <div class="item-head"><span class="item-titulo" data-etiqueta="Experiencia"></span><button type="button"
+                class="btn-quitar" aria-label="Quitar">✕</button></div>
+        <div class="grid-2">
+            <label>Puesto<input type="text" data-field="puesto" maxlength="120"></label>
+            <label>Empresa<input type="text" data-field="empresa" maxlength="120"></label>
+            <label>Desde<input type="text" data-field="desde" placeholder="MM/AAAA" maxlength="7"
+                    class="fecha-mmaaaa"></label>
+            <label>Hasta<input type="text" data-field="hasta" placeholder="MM/AAAA" maxlength="7"
+                    class="fecha-mmaaaa"></label>
+        </div>
+        <label class="check"><input type="checkbox" data-field="actual"> Trabajo actual</label>
+        <label>Descripción / logros
+            <textarea data-field="descripcion" rows="2" maxlength="1500"
+                placeholder="Una línea por logro. Incluí números cuando puedas."></textarea>
+        </label>
+    </div>
+</template>
+
+<template id="tpl-educacion">
+    <div class="item">
+        <div class="item-head"><span class="item-titulo" data-etiqueta="Estudio"></span><button type="button"
+                class="btn-quitar" aria-label="Quitar">✕</button></div>
+        <div class="grid-2">
+            <label>Título / carrera<input type="text" data-field="titulo" maxlength="150"></label>
+            <label>Institución<input type="text" data-field="institucion" maxlength="150"></label>
+            <label>Desde<input type="text" data-field="desde" placeholder="AAAA" maxlength="7"
+                    class="fecha-anio"></label>
+            <label class="label-hasta-educacion">Hasta
+                <div class="hasta-row">
+                    <input type="text" data-field="hasta" placeholder="AAAA" maxlength="7" class="fecha-anio">
+                    <button type="button" class="btn-en-curso" data-field-toggle="hasta">En curso</button>
+                </div>
             </label>
         </div>
-    </template>
+        <label>Detalle (opcional)<textarea data-field="descripcion" rows="2" maxlength="800"></textarea></label>
+    </div>
+</template>
 
-    <template id="tpl-educacion">
-        <div class="item">
-            <div class="item-head"><span class="item-titulo" data-etiqueta="Estudio"></span><button type="button"
-                    class="btn-quitar" aria-label="Quitar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                </button></div>
-            <div class="grid-2">
-                <label>Título / carrera<input type="text" data-field="titulo" maxlength="150"></label>
-                <label>Institución<input type="text" data-field="institucion" maxlength="150"></label>
-                <label>Desde<input type="text" data-field="desde" placeholder="AAAA" maxlength="7"
-                        class="fecha-anio"></label>
-                <label class="label-hasta-educacion">
-                    Hasta
-                    <div class="hasta-row">
-                        <input type="text" data-field="hasta" placeholder="AAAA" maxlength="7" class="fecha-anio">
-                        <button type="button" class="btn-en-curso" data-field-toggle="hasta">En curso</button>
-                    </div>
-                </label>
-            </div>
-            <label>Detalle (opcional)
-                <textarea data-field="descripcion" rows="2" maxlength="800"></textarea>
+<template id="tpl-idiomas">
+    <div class="item">
+        <div class="item-head"><span class="item-titulo" data-etiqueta="Idioma"></span><button type="button"
+                class="btn-quitar" aria-label="Quitar">✕</button></div>
+        <div class="grid-2">
+            <label>Idioma<input type="text" data-field="idioma" maxlength="60"></label>
+            <label>Nivel
+                <select data-field="nivel">
+                    <option value="">Elegí…</option>
+                    <option>Básico</option>
+                    <option>Intermedio</option>
+                    <option>Avanzado</option>
+                    <option>Nativo</option>
+                </select>
             </label>
         </div>
-    </template>
+    </div>
+</template>
 
-    <template id="tpl-idiomas">
-        <div class="item item-compacto">
-            <div class="item-head"><span class="item-titulo" data-etiqueta="Idioma"></span><button type="button"
-                    class="btn-quitar" aria-label="Quitar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                </button></div>
-            <div class="grid-2">
-                <label>Idioma<input type="text" data-field="idioma" maxlength="60"></label>
-                <label>Nivel
-                    <select data-field="nivel">
-                        <option value="">Elegí…</option>
-                        <option>Básico</option>
-                        <option>Intermedio</option>
-                        <option>Avanzado</option>
-                        <option>Nativo</option>
-                    </select>
-                </label>
-            </div>
+<template id="tpl-extras">
+    <div class="item">
+        <div class="item-head"><span class="item-titulo" data-etiqueta="Curso"></span><button type="button"
+                class="btn-quitar" aria-label="Quitar">✕</button></div>
+        <div class="grid-2">
+            <label>Nombre del curso<input type="text" data-field="titulo" maxlength="150"></label>
+            <label>Institución<input type="text" data-field="institucion" maxlength="150"></label>
+            <label>Año<input type="text" data-field="anio" placeholder="AAAA" maxlength="10" class="fecha-anio"></label>
         </div>
-    </template>
+    </div>
+</template>
+{% endblock %}
 
-    <template id="tpl-extras">
-        <div class="item item-compacto">
-            <div class="item-head"><span class="item-titulo" data-etiqueta="Curso"></span><button type="button"
-                    class="btn-quitar" aria-label="Quitar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                </button></div>
-            <div class="grid-2">
-                <label>Nombre del curso<input type="text" data-field="titulo" maxlength="150"></label>
-                <label>Institución<input type="text" data-field="institucion" maxlength="150"></label>
-                <label>Año<input type="text" data-field="anio" placeholder="AAAA" maxlength="10"
-                        class="fecha-anio"></label>
-            </div>
-        </div>
-    </template>
-</body>
-
-</html>
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/crearCV.js') }}"></script>{% endblock %}
