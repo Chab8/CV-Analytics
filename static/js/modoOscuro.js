@@ -11,11 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Toggle con click
   btnModo?.addEventListener("click", () => {
     body.classList.toggle("dark-mode");
-
-    if (body.classList.contains("dark-mode")) {
-      localStorage.setItem("theme", "dark");
-    } else {
-      localStorage.setItem("theme", "light");
-    }
+    localStorage.setItem("theme", body.classList.contains("dark-mode") ? "dark" : "light");
+    btnModo.classList.remove("gira"); void btnModo.offsetWidth; btnModo.classList.add("gira");
   });
 });

@@ -498,20 +498,33 @@ body.dark-mode .error-fecha {
 }
 
 .btn-reiniciar {
-    display: block;
-    margin: 6px auto 0;
-    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
     border: 0;
+    border-radius: 999px;
     background: none;
     color: var(--muted);
     font: inherit;
-    font-size: .85rem;
-    text-decoration: underline;
+    font-size: .88rem;
+    font-weight: 600;
     cursor: pointer
 }
 
+.btn-reiniciar svg {
+    width: 18px;
+    height: 18px;
+    transition: transform .6s cubic-bezier(.3, 1.2, .5, 1)
+}
+
 .btn-reiniciar:hover {
-    color: var(--ink)
+    color: var(--ink);
+    background: var(--soft)
+}
+
+.btn-reiniciar:hover svg {
+    transform: rotate(-360deg)
 }
 
 @media(max-width:700px) {
@@ -529,5 +542,61 @@ body.dark-mode .error-fecha {
 
     .grid-2 {
         grid-template-columns: 1fr
+    }
+}
+
+/* Movimiento que responde a acciones */
+.paso.desde-der {
+    animation: desde-der .32s cubic-bezier(.2, .7, .2, 1)
+}
+
+.paso.desde-izq {
+    animation: desde-izq .32s cubic-bezier(.2, .7, .2, 1)
+}
+
+@keyframes desde-der {
+    from {
+        opacity: 0;
+        transform: translateX(32px)
+    }
+}
+
+@keyframes desde-izq {
+    from {
+        opacity: 0;
+        transform: translateX(-32px)
+    }
+}
+
+.tag.nuevo {
+    animation: pop .4s cubic-bezier(.3, 1.7, .5, 1)
+}
+
+.item.nuevo {
+    animation: abrir .3s ease
+}
+
+@keyframes pop {
+    from {
+        transform: scale(.4);
+        opacity: 0
+    }
+}
+
+@keyframes abrir {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(.98)
+    }
+}
+
+.preview-wrap.listo {
+    animation: papel .6s cubic-bezier(.2, .8, .2, 1)
+}
+
+@keyframes papel {
+    from {
+        opacity: 0;
+        transform: translateY(26px) rotate(-1.2deg)
     }
 }

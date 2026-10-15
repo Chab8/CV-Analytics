@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Resultado · CV Analytics{% endblock %}
-
+{% block body_class %}page-result{% endblock %}
 {% block content %}
 {% set s = (similitud | string | replace('%', '')) | int %}
 <main class="wrap result">

@@ -5,14 +5,8 @@
 <main class="wrap tool-page">
     <div class="tool-head">
         <h1>Compará tu CV con una oferta</h1>
-        <p>Subí los dos archivos y te mostramos cuánto coinciden y qué mejorar.</p>
+        <p>Subí los dos archivos (PDF, Word o imagen) y te decimos cuánto coinciden y qué mejorar.</p>
     </div>
-
-    <ol class="flow" id="flow" aria-label="Progreso">
-        <li>Tu CV</li>
-        <li>La oferta</li>
-        <li>Análisis</li>
-    </ol>
 
     <form action="{{ url_for('comparar') }}" method="post" enctype="multipart/form-data" class="formulario-contenedor"
         novalidate>
@@ -37,29 +31,27 @@
                     <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18" />
                 </svg>
                 <input type="file" id="requisitos" name="requisitos" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" hidden>
-                <span class="drop-label">La oferta de trabajo</span>
+                <span class="drop-label">La oferta</span>
                 <span class="file-name"></span>
                 <span class="file-meta"></span>
             </div>
+            <span class="vs" aria-hidden="true">vs</span>
         </div>
 
         <div class="submit-row">
-            <button type="submit" class="cta cta-primary" id="boton-comparar" disabled>Analizar compatibilidad</button>
-            <span class="hint" id="hint"></span>
+            <button type="submit" class="cta cta-primary" id="boton-comparar" disabled>Analizar</button>
         </div>
         <p class="notice" id="error" role="alert" hidden></p>
     </form>
 </main>
 
 <div class="overlay" id="overlay" role="status" aria-live="polite" hidden>
-    <div>
-        <div class="spinner"></div>
-        <h2>Analizando tu CV</h2>
-        <ul>
-            <li>Leyendo tus documentos</li>
-            <li>Comparando con los requisitos</li>
-            <li>Preparando tus sugerencias</li>
-        </ul>
+    <div class="overlay-in">
+        <div class="scanner">
+            <div class="sheet"><i></i><i></i><i></i><i></i><i></i></div>
+            <b class="beam"></b>
+        </div>
+        <h2>Analizando tu CV…</h2>
     </div>
 </div>
 {% endblock %}

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, abort
-
+import re
 from plantillas_cv import PLANTILLAS, DATOS_MUESTRA, obtener_plantilla
 
 crear_cv_bp = Blueprint("crear_cv", __name__, url_prefix="/crear")
@@ -25,9 +25,22 @@ def _txt(valor, limite):
 def _fila(item, campos):
     return {campo: _txt(item.get(campo), limite) for campo, limite in campos.items()}
 
+def _clave_fecha(texto):
+    """'03/2022' -> (2022, 3); '2022' -> (2022, 0); vacío -> (0, 0)."""
+    m = re.search(r"(?:(\d{1,2})/)?(\d{4})", texto or "")
+    return (int(m.group(2)), int(m.group(1) or 0)) if m else (0, 0)
 
-def _lista(valor, campos, con_actual=False):
-    """Limpia una lista de dicts; descarta filas completamente vacías."""
+
+def _orden_reciente(fila):
+    if fila.get("actual"):
+        fin = (9999, 12)
+    else:
+        fin = _clave_fecha(fila.get("hasta") or fila.get("desde"))
+    return (fin, _clave_fecha(fila.get("desde")))
+
+
+def _lista(valor, campos, con_actual=False, por_anio=False):
+    """Limpia una lista de dicts; descarta filas vacías y ordena de más reciente a más vieja."""
     filas = []
     if not isinstance(valor, list):
         return filas
@@ -42,6 +55,10 @@ def _lista(valor, campos, con_actual=False):
             if fila["actual"]:
                 fila["hasta"] = ""
         filas.append(fila)
+    if con_actual:
+        filas.sort(key=_orden_reciente, reverse=True)
+    elif por_anio:
+        filas.sort(key=lambda f: _clave_fecha(f.get("anio")), reverse=True)
     return filas
 
 
@@ -63,7 +80,7 @@ def limpiar_datos(raw):
         "educacion": _lista(raw.get("educacion"), CAMPOS_EDUCACION, con_actual=True),
         "habilidades": habilidades,
         "idiomas": _lista(raw.get("idiomas"), CAMPOS_IDIOMAS),
-        "extras": _lista(raw.get("extras"), CAMPOS_EXTRAS),
+        "extras": _lista(raw.get("extras"), CAMPOS_EXTRAS, por_anio=True),
     }
 
 

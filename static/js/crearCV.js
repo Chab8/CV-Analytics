@@ -73,58 +73,53 @@ document.addEventListener("DOMContentLoaded", () => {
     form.querySelectorAll(".fecha-mmaaaa").forEach(aplicarAutoSlash);
 
     /* ---------------- Validación de rango de fechas ---------------- */
-    function parsearFechaMMAAAA(str) {
-        if (!str) return null;
-        const partes = str.split("/");
-        if (partes.length !== 2) return null;
-        const mm = parseInt(partes[0], 10);
-        const aaaa = parseInt(partes[1], 10);
-        if (isNaN(mm) || isNaN(aaaa) || mm < 1 || mm > 12) return null;
-        return new Date(aaaa, mm - 1, 1);
-    }
+    const ANIO_MIN = 1950;
 
-    function parsearFechaAAAA(str) {
-        if (!str || str.trim().toLowerCase() === "en curso") return null;
-        const aaaa = parseInt(str.trim(), 10);
-        if (isNaN(aaaa)) return null;
-        return new Date(aaaa, 0, 1);
-    }
-
-    function validarRangoFechas(nodo, tipoFecha) {
-        const desdeEl = nodo.querySelector('[data-field="desde"]');
-        const hastaEl = nodo.querySelector('[data-field="hasta"]');
-        const actualChk = nodo.querySelector('[data-field="actual"]');
-        if (!desdeEl || !hastaEl) return true;
-        if (actualChk && actualChk.checked) return true;
-        const hastaVal = hastaEl.value.trim();
-        if (!hastaVal || hastaVal.toLowerCase() === "en curso") return true;
-        const desdeVal = desdeEl.value.trim();
-        if (!desdeVal) return true;
-
-        const parsear = tipoFecha === "mmaaaa" ? parsearFechaMMAAAA : parsearFechaAAAA;
-        const desde = parsear(desdeVal);
-        const hasta = parsear(hastaVal);
-
-        if (desde && hasta && desde > hasta) {
-            return false;
+    function parsear(val, tipo) {
+        val = (val || "").trim();
+        if (!val || val.toLowerCase() === "en curso") return { fecha: null, error: "" };
+        let mes = 0, anio;
+        if (tipo === "mmaaaa") {
+            const m = /^(\d{2})\/(\d{4})$/.exec(val);
+            if (!m) return { fecha: null, error: "Usá el formato MM/AAAA (por ejemplo 03/2022)." };
+            mes = +m[1]; anio = +m[2];
+            if (mes < 1 || mes > 12) return { fecha: null, error: "El mes tiene que estar entre 01 y 12." };
+        } else {
+            if (!/^\d{4}$/.test(val)) return { fecha: null, error: "Ingresá el año con 4 cifras (por ejemplo 2022)." };
+            anio = +val;
         }
-        return true;
+        if (anio < ANIO_MIN) return { fecha: null, error: `El año no puede ser anterior a ${ANIO_MIN}.` };
+        const hoy = new Date();
+        const f = anio * 12 + Math.max(mes - 1, 0);
+        if (f > hoy.getFullYear() * 12 + hoy.getMonth()) return { fecha: null, error: "Esa fecha todavía no ocurrió." };
+        return { fecha: f, error: "" };
     }
 
-    function mostrarErrorFecha(nodo, ok) {
+    function revisarItem(nodo, tipo) {
+        const valor = n => { const el = nodo.querySelector(`[data-field="${n}"]`); return el && !el.disabled ? el.value : ""; };
+        const campos = nodo.querySelector('[data-field="anio"]') ? ["anio"] : ["desde", "hasta"];
+        const res = {};
+        for (const c of campos) {
+            const r = parsear(valor(c), tipo);
+            if (r.error) return { msg: r.error, campo: c };
+            res[c] = r.fecha;
+        }
+        if (res.desde != null && res.hasta != null && res.desde > res.hasta)
+            return { msg: "La fecha de inicio debe ser anterior a la de finalización.", campo: "desde" };
+        return null;
+    }
+
+    function mostrarErrorFecha(nodo, msg) {
         let errEl = nodo.querySelector(".error-fecha");
-        if (!ok) {
+        if (msg) {
             if (!errEl) {
                 errEl = document.createElement("p");
                 errEl.className = "error-fecha";
-                errEl.style.cssText = "color:#e53e3e;font-size:.8rem;margin-top:4px;";
                 const grid = nodo.querySelector(".grid-2");
                 if (grid) grid.after(errEl);
             }
-            errEl.textContent = "⚠ La fecha de inicio debe ser anterior a la de finalización.";
-        } else if (errEl) {
-            errEl.remove();
-        }
+            errEl.textContent = "⚠ " + msg;
+        } else if (errEl) errEl.remove();
     }
 
     /* ---------------- Listas repetibles ---------------- */
@@ -210,8 +205,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const item = e.target.closest(".item");
             if (item) {
                 sincronizarActual(item);
-                const ok = validarRangoFechas(item, tipoFecha);
-                mostrarErrorFecha(item, ok);
+                const r = e.type === "change" ? revisarItem(item, tipoFecha) : null;
+                mostrarErrorFecha(item, r && r.msg);
             }
             sincronizarLista(nombre);
         };
@@ -229,6 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
             const nombre = btn.dataset.add;
             const nodo = crearItem(nombre);
+            nodo.classList.add("nuevo");
             contenedor(nombre).append(nodo);
             sincronizarLista(nombre);
             const primero = nodo.querySelector("input, textarea");
@@ -240,10 +236,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const tagInput = document.getElementById("habilidad-input");
     const tagsBox = document.getElementById("tags");
 
-    function renderTags() {
+    function renderTags(nuevo = -1) {
         tagsBox.replaceChildren(...estado.habilidades.map((h, i) => {
             const chip = document.createElement("span");
-            chip.className = "tag";
+            chip.className = "tag" + (i === nuevo ? " nuevo" : "");
             chip.textContent = h;
             const x = document.createElement("button");
             x.type = "button";
@@ -259,9 +255,10 @@ document.addEventListener("DOMContentLoaded", () => {
         texto = texto.trim().slice(0, 60);
         if (!texto) return;
         if (estado.habilidades.length >= 40) return;
-        if (!estado.habilidades.some(h => h.toLowerCase() === texto.toLowerCase())) estado.habilidades.push(texto);
+        const yaEsta = estado.habilidades.some(h => h.toLowerCase() === texto.toLowerCase());
+        if (!yaEsta) estado.habilidades.push(texto);
         guardar();
-        renderTags();
+        renderTags(yaEsta ? -1 : estado.habilidades.length - 1);
     }
 
     function volcarTagPendiente() {
@@ -370,7 +367,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     }
-    frame.addEventListener("load", ajustarPreview);
+    frame.addEventListener("load", () => {
+        ajustarPreview();
+        previewWrap.classList.remove("listo");
+        void previewWrap.offsetWidth;
+        previewWrap.classList.add("listo");
+    });
     window.addEventListener("resize", () => { escalarMiniaturas(); ajustarPreview(); });
 
     document.getElementById("btn-descargar").addEventListener("click", () => {
@@ -399,13 +401,25 @@ document.addEventListener("DOMContentLoaded", () => {
         stepper.append(li);
     });
 
+    const PASOS_CON_FECHAS = { 2: ["experiencia", "mmaaaa"], 3: ["educacion", "aaaa"], 5: ["extras", "aaaa"] };
+
     function validar(n) {
         const err = pasos[n].querySelector(".error-paso");
+        if (PASOS_CON_FECHAS[n]) {
+            const [lista, tipo] = PASOS_CON_FECHAS[n];
+            let primero = null;
+            contenedor(lista).querySelectorAll(".item").forEach(item => {
+                const r = revisarItem(item, tipo);
+                mostrarErrorFecha(item, r && r.msg);
+                if (r && !primero) primero = item.querySelector(`[data-field="${r.campo}"]`);
+            });
+            if (primero) primero.focus();
+            return !primero;
+        }
         if (n !== 1) return true;
         const nombre = form.querySelector('[data-path="personal.nombre"]');
         const email = form.querySelector('[data-path="personal.email"]');
-        let msg = "";
-        let campo = null;
+        let msg = "", campo = null;
         if (!nombre.value.trim()) { msg = "Ingresá tu nombre completo."; campo = nombre; }
         else if (!email.value.trim() || !email.checkValidity()) { msg = "Ingresá un email válido."; campo = email; }
         if (err) err.textContent = msg;
@@ -414,10 +428,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function irA(n) {
+        const antes = estado.paso;
         estado.paso = Math.max(0, Math.min(n, ULTIMO));
         estado.max = Math.max(estado.max || 0, estado.paso);
         form.querySelector(".cuerpo").scrollTop = 0;
         pasos.forEach((p, i) => { p.hidden = i !== estado.paso; });
+        const nuevo = pasos[estado.paso];
+        nuevo.classList.remove("desde-der", "desde-izq");
+        if (estado.paso !== antes) {
+            void nuevo.offsetWidth;
+            nuevo.classList.add(estado.paso > antes ? "desde-der" : "desde-izq");
+        }
         [...stepper.querySelectorAll("button")].forEach((b, i) => {
             b.classList.toggle("actual", i === estado.paso);
             b.classList.toggle("hecho", i <= estado.max && i !== estado.paso);
