@@ -1,133 +1,99 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const cvInput = document.getElementById("cv");
-    const reqInput = document.getElementById("requisitos");
+    const form = document.querySelector(".formulario-contenedor");
+    if (!form) return;
+
+    const inputs = { cv: document.getElementById("cv"), req: document.getElementById("requisitos") };
     const boton = document.getElementById("boton-comparar");
-    const progress = document.getElementById("progress");
-    const progressText = document.getElementById("progress-text");
+    const hint = document.getElementById("hint");
+    const error = document.getElementById("error");
+    const overlay = document.getElementById("overlay");
+    const flow = [...document.querySelectorAll("#flow li")];
+    const areas = [...document.querySelectorAll(".drop-area")];
+    const VALIDO = /\.(pdf|docx?|jpe?g|png)$/i;
+    const MAX = 10 * 1024 * 1024;
+    const tam = b => (b < 1048576 ? Math.round(b / 1024) + " KB" : (b / 1048576).toFixed(1) + " MB");
 
-    function actualizarNombres() {
-        [cvInput, reqInput].forEach(input => {
-            const span = input.parentElement.querySelector(".file-name");
-            const defaultText = span.dataset.default || "Seleccionar archivos PDF";
-            if (input.files.length > 0) {
-                span.textContent = input.files[0].name;
-            } else {
-                span.innerHTML = defaultText + "<br><small>o arrastra y suelta aquí</small>";
-            }
+    function mostrarError(msg) { error.textContent = msg; error.hidden = !msg; }
+
+    function pintar() {
+        areas.forEach(a => {
+            const f = document.getElementById(a.dataset.target).files[0];
+            a.classList.toggle("filled", !!f);
+            a.querySelector(".file-name").textContent = f ? f.name : "Arrastrá el archivo acá o hacé clic para elegirlo";
+            a.querySelector(".file-meta").textContent = f ? tam(f.size) + " · hacé clic para cambiarlo" : "PDF, Word, JPG o PNG · hasta 10 MB";
         });
+        const tieneCV = inputs.cv.files.length > 0, tieneReq = inputs.req.files.length > 0;
+        const faltan = 2 - (tieneCV + tieneReq);
+        flow[0].classList.toggle("done", tieneCV);
+        flow[1].classList.toggle("done", tieneReq);
+        flow[2].classList.toggle("done", false);
+        boton.disabled = faltan > 0;
+        hint.textContent = faltan === 2 ? "Elegí tu CV y la oferta para continuar." : faltan === 1 ? "Falta 1 archivo." : "Todo listo.";
     }
 
-    function actualizarEstado() {
-        const total = (cvInput.files.length > 0 ? 1 : 0) + (reqInput.files.length > 0 ? 1 : 0);
-        progressText.textContent = `${total}/2`;
-
-        const percent = (total / 2) * 100;
-        progress.style.setProperty("--progress-percent", percent + "%");
-
-        if (total === 2) {
-            boton.disabled = false;
-            boton.value = "COMPARAR";
-            boton.classList.remove("disabled");
-            boton.classList.add("ready");
-        } else {
-            boton.disabled = true;
-            boton.value = "FALTAN ARCHIVOS";
-            boton.classList.add("disabled");
-            boton.classList.remove("ready");
-        }
-
-        document.querySelectorAll(".drop-area").forEach(area => {
-            const input = document.getElementById(area.dataset.target);
-            if (input.files.length > 0) {
-                area.classList.add("filled");
-            } else {
-                area.classList.remove("filled");
-            }
-        });
+    function aceptar(input, file) {
+        if (!VALIDO.test(file.name)) return mostrarError("Ese formato no está permitido. Usá PDF, Word, JPG o PNG.");
+        if (file.size > MAX) return mostrarError("El archivo supera los 10 MB. Probá con uno más liviano.");
+        mostrarError("");
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        pintar();
     }
 
-    document.querySelectorAll(".drop-area").forEach(area => {
-        const input = document.getElementById(area.dataset.target);
-
-        area.addEventListener("click", () => input.click());
-
-        area.addEventListener("dragover", e => {
+    areas.forEach(a => {
+        const input = document.getElementById(a.dataset.target);
+        a.addEventListener("click", () => input.click());
+        a.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
+        a.addEventListener("dragover", e => { e.preventDefault(); a.classList.add("dragover"); });
+        a.addEventListener("dragleave", () => a.classList.remove("dragover"));
+        a.addEventListener("drop", e => {
             e.preventDefault();
-            area.classList.add("dragover");
+            a.classList.remove("dragover");
+            if (e.dataTransfer.files.length) aceptar(input, e.dataTransfer.files[0]);
         });
-
-        area.addEventListener("dragleave", () => area.classList.remove("dragover"));
-
-        area.addEventListener("drop", e => {
-            e.preventDefault();
-            area.classList.remove("dragover");
-            if (!e.dataTransfer.files.length) return;
-            const file = e.dataTransfer.files[0];
-            const data = new DataTransfer();
-            data.items.add(file);
-            input.files = data.files;
-            actualizarNombres();
-            actualizarEstado();
-        });
-
-        input.addEventListener("change", () => {
-            actualizarNombres();
-            actualizarEstado();
-        });
+        input.addEventListener("change", () => { if (input.files[0]) aceptar(input, input.files[0]); else pintar(); });
     });
 
-    actualizarNombres();
-    actualizarEstado();
-});
-
-
-
-/* ==============================================================
-REEMPLAZO DEL SUBMIT POR EL NUEVO (mínimo 2s + espera servidor)
-============================================================== */
-
-const form = document.querySelector('.formulario-contenedor');
-const progressCircle = document.querySelector('.progress-circle');
-const progressText = document.getElementById('progress-text');
-const botonComparar = document.getElementById('boton-comparar');
-
-if (form && progressCircle && botonComparar) {
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener("submit", async e => {
         e.preventDefault();
-        if (botonComparar.disabled) return;
+        if (boton.disabled) return;
+        mostrarError("");
+        const pasos = [...overlay.querySelectorAll("li")];
+        let k = 0;
+        pasos.forEach(p => (p.className = ""));
+        pasos[0].className = "on";
+        overlay.hidden = false;
+        flow[2].classList.add("done");
 
-        progressText.style.display = 'none';
-        progressCircle.classList.add('loading');
+        const reloj = setInterval(() => {
+            if (k < pasos.length - 1) { pasos[k].className = "done"; pasos[++k].className = "on"; }
+        }, 1100);
+        const minimo = new Promise(r => setTimeout(r, 2400));
 
-        const datos = new FormData(form);
-
-        // PROMESA DEL SERVIDOR
-        const serverPromise = fetch(form.action, {
-            method: "POST",
-            body: datos
-        }).then(async r => ({
-            ok: true,
-            html: await r.text()
-        })).catch(() => ({
-            ok: false,
-            html: "<h1>Error del servidor</h1>"
-        }));
-
-        // PROMESA DEL MÍNIMO 2 SEGUNDOS
-        const delayPromise = new Promise(resolve => setTimeout(resolve, 2000));
-
-        // ESPERA A QUE **AMBAS** TERMINEN
-        const [{ html }] = await Promise.all([serverPromise, delayPromise]);
-
-        // ⚪ TERMINA LA CARGA → SE VE EL ✔
-        progressCircle.classList.remove('loading');
-        progressCircle.classList.add('check');
-
-        // ⏳ **ESPERA 2500ms para que el ✔ realmente se vea**
-        setTimeout(() => {
+        try {
+            const [r] = await Promise.all([fetch(form.action, { method: "POST", body: new FormData(form) }), minimo]);
+            if (!r.ok) {
+                let msg = "No pudimos procesar los archivos.";
+                try { msg = (await r.json()).error || msg; } catch (_) { }
+                throw new Error(msg);
+            }
+            const html = await r.text();
+            clearInterval(reloj);
+            pasos.forEach(p => (p.className = "done"));
+            await new Promise(r => setTimeout(r, 600));
             document.open();
             document.write(html);
             document.close();
-        }, 2500); 
+        } catch (ex) {
+            clearInterval(reloj);
+            overlay.hidden = true;
+            flow[2].classList.remove("done");
+            mostrarError(ex instanceof TypeError
+                ? "No pudimos conectar con el servidor. Revisá tu conexión y probá de nuevo."
+                : ex.message);
+        }
     });
-}
+
+    pintar();
+});

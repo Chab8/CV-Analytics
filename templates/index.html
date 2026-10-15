@@ -1,63 +1,68 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Comparador de CV</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<script defer src="{{ url_for('static', filename='js/modoOscuro.js') }}"></script>
-<script defer src="{{ url_for('static', filename='js/upload.js') }}"></script>
-</head>
-<body>
-<header class="header">
-    <img src="{{ url_for('static', filename='img/CVAnalyticsLogo.png') }}" alt="CV Analytics Logo" class="logo logo-light">
-    <img src="{{ url_for('static', filename='img/CVAnalyticsLogoBlanco.png') }}" alt="CV Analytics Logo Blanco" class="logo logo-dark">
-    <a href="/" class="home-button" aria-label="Ir al inicio">
-        <img src="{{ url_for('static', filename='img/Home_Btn.png') }}" alt="Home">
-    </a>
-</header>
+{% extends "base.html" %}
+{% block title %}Analizar CV · CV Analytics{% endblock %}
 
-<main class="formulario">
-    <form action="{{ url_for('comparar') }}" method="post" enctype="multipart/form-data" class="formulario-contenedor" novalidate>
+{% block content %}
+<main class="wrap tool-page">
+    <div class="tool-head">
+        <h1>Compará tu CV con una oferta</h1>
+        <p>Subí los dos archivos y te mostramos cuánto coinciden y qué mejorar.</p>
+    </div>
 
-        <div class="upload-row">
-            <!-- IZQUIERDA: CV -->
-            <div class="upload-section large">
-                <label for="cv" class="upload-label">Sube tu CV:</label>
-                <div class="drop-area" data-target="cv">
-                    <img src="{{ url_for('static', filename='img/CV SubirDoc.png') }}" alt="Documento" class="icon-img">
-                    <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png," hidden>
-                    <span class="file-name" data-default="Seleccionar archivos PDF">
-                        Seleccionar archivos<br><small>o arrastra y suelta aquí</small>
-                    </span>
-                </div>
+    <ol class="flow" id="flow" aria-label="Progreso">
+        <li>Tu CV</li>
+        <li>La oferta</li>
+        <li>Análisis</li>
+    </ol>
+
+    <form action="{{ url_for('comparar') }}" method="post" enctype="multipart/form-data" class="formulario-contenedor"
+        novalidate>
+        <div class="drops">
+            <div class="drop-area" data-target="cv" tabindex="0" role="button" aria-label="Elegir tu CV">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+                    <path d="M14 3v5h5M9 13h6M9 17h4" />
+                </svg>
+                <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" hidden>
+                <span class="drop-label">Tu CV</span>
+                <span class="file-name"></span>
+                <span class="file-meta"></span>
             </div>
 
-            <!-- CENTRO: círculo progreso -->
-            <div id="progress" class="progress-circle" role="img" aria-label="Progreso de archivos">
-                <div class="progress-inner">
-                    <span id="progress-text">0/2</span>
-                </div>
-            </div>
-
-            <!-- DERECHA: REQUISITOS -->
-            <div class="upload-section large">
-                <label for="requisitos" class="upload-label">Sube la propuesta de trabajo:</label>
-                <div class="drop-area" data-target="requisitos">
-                    <img src="{{ url_for('static', filename='img/CV SubirCarpeta.png') }}" alt="Carpeta" class="icon-img">
-                    <input type="file" id="requisitos" name="requisitos" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png," hidden>
-                    <span class="file-name" data-default="Seleccionar archivos PDF">
-                        Seleccionar archivos<br><small>o arrastra y suelta aquí</small>
-                    </span>
-                </div>
+            <div class="drop-area" data-target="requisitos" tabindex="0" role="button"
+                aria-label="Elegir la oferta de trabajo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="7" width="18" height="13" rx="2" />
+                    <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18" />
+                </svg>
+                <input type="file" id="requisitos" name="requisitos" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" hidden>
+                <span class="drop-label">La oferta de trabajo</span>
+                <span class="file-name"></span>
+                <span class="file-meta"></span>
             </div>
         </div>
 
-        <!-- BOTÓN -->
-        <div class="boton-contenedor">
-            <input type="submit" value="FALTAN ARCHIVOS" class="boton-comparar disabled" id="boton-comparar" disabled>
+        <div class="submit-row">
+            <button type="submit" class="cta cta-primary" id="boton-comparar" disabled>Analizar compatibilidad</button>
+            <span class="hint" id="hint"></span>
         </div>
+        <p class="notice" id="error" role="alert" hidden></p>
     </form>
 </main>
-</body>
-</html>
+
+<div class="overlay" id="overlay" role="status" aria-live="polite" hidden>
+    <div>
+        <div class="spinner"></div>
+        <h2>Analizando tu CV</h2>
+        <ul>
+            <li>Leyendo tus documentos</li>
+            <li>Comparando con los requisitos</li>
+            <li>Preparando tus sugerencias</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>{% endblock %}

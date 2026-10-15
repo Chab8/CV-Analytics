@@ -1,46 +1,53 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Resultado de la Comparación</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleResultados.css') }}">
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Resultado · CV Analytics{% endblock %}
 
-    <header>
-    <img src="{{ url_for('static', filename='img/CVAnalyticsLogo.png') }}" alt="CV Analytics" class="logo logo-light">
-    <img src="{{ url_for('static', filename='img/CVAnalyticsLogoBlanco.png') }}" alt="CV Analytics Logo Blanco" class="logo logo-dark">
-    </header>
-
-    <main>
-        <!-- Panel de sugerencias -->
-        <div class="sugerencias-box">
-            <h2>Sugerencias</h2>
-            <div class="sugerencias-content">
-                {% if sugerencias %}
-                    {{ sugerencias | safe }}
-                {% else %}
-                    <p><em>No se pudieron generar sugerencias automáticamente.</em></p>
-                {% endif %}
-            </div>
+{% block content %}
+{% set s = (similitud | string | replace('%', '')) | int %}
+<main class="wrap result">
+    <aside class="score-card">
+        <div class="score">
+            <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
+                <circle class="progress-ring__background" cx="100" cy="100" r="84" />
+                <circle class="progress-ring__circle" cx="100" cy="100" r="84" />
+            </svg>
+            <div class="progress-label">{{ s }}%</div>
         </div>
-
-        <!-- Progreso y botón -->
-        <div class="right-section">
-            <div class="progress-container">
-                <svg class="progress-ring" width="260" height="260">
-                    <circle class="progress-ring__background" cx="130" cy="130" r="100" />
-                    <circle class="progress-ring__circle" cx="130" cy="130" r="100" />
-                </svg>
-                <div class="progress-label">{{ similitud }}%</div>
-            </div>
-
-            <a href="{{ url_for('subir') }}" class="btn-volver">MENÚ PRINCIPAL</a>
+        <div>
+            <h1>{% if s >= 80 %}Muy buena coincidencia{% elif s >= 60 %}Buena base, con margen para mejorar{% elif s > 0
+                %}Hay brechas con la oferta{% else %}No pudimos calcular la coincidencia{% endif %}</h1>
+            <p>{% if s >= 80 %}Tu CV ya cubre gran parte de lo que piden. Estos ajustes lo acercan más.{% elif s >= 60
+                %}Tenés la base. Con estos cambios mostrás mejor lo que el puesto pide.{% elif s > 0 %}Reformulá tu CV
+                con las palabras clave de la oferta. Empezá por estos cambios.{% else %}Revisá que los archivos tengan
+                texto legible y probá de nuevo.{% endif %}</p>
         </div>
-    </main>
+        <div class="next">
+            <a class="cta cta-primary" href="{{ url_for('crear_cv.wizard') }}">Crear mi CV mejorado</a>
+            <a class="cta cta-ghost" href="{{ url_for('subir') }}">Analizar otra oferta</a>
+        </div>
+    </aside>
 
-    <script src="{{ url_for('static', filename='js/progreso.js') }}"></script>
-    <script defer src="{{ url_for('static', filename='js/modoOscuro.js') }}"></script>
-</body>
-</html>
+    <section class="tips-wrap">
+        <h2>Qué mejorar en tu CV</h2>
+        {% if sugerencias and sugerencias.startswith('⚠') %}
+        <p class="notice">{{ sugerencias }}</p>
+        {% elif sugerencias %}
+        <ol class="tips">
+            {% for linea in sugerencias.split('\n') if linea.strip() %}
+            {% set t = linea.strip() %}
+            {% if t[0].isdigit() and t[1:3] == '. ' %}{% set t = t[3:] %}{% endif %}
+            <li><span>{{ loop.index }}</span>
+                <p>{{ t }}</p>
+            </li>
+            {% endfor %}
+        </ol>
+        {% elif feedback %}
+        <p class="notice">{{ feedback }}</p>
+        {% else %}
+        <p class="notice">No pudimos generar sugerencias esta vez. Probá de nuevo en unos minutos.</p>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/progreso.js') }}"></script>{% endblock %}
