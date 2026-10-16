@@ -506,7 +506,8 @@ mark:nth-of-type(4) {
 .tool-head p {
     color: var(--muted);
     margin-top: 12px;
-    max-width: 56ch
+    max-width: 80ch;
+    margin-bottom: 24px
 }
 
 .drops {
