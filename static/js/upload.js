@@ -3,15 +3,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!form) return;
 
     const boton = document.getElementById("boton-comparar");
-    const error = document.getElementById("error");
     const overlay = document.getElementById("overlay");
     const areas = [...document.querySelectorAll(".drop-area")];
+    const [areaCv, areaOferta] = areas;
+    const cajaTexto = document.getElementById("texto-oferta");
+    const texto = document.getElementById("requisitos_texto");
+    const cambiar = document.getElementById("cambiar-oferta");
+    const contador = document.getElementById("contador");
     const inputDe = a => document.getElementById(a.dataset.target);
-    const VALIDO = /\.(pdf|docx?|jpe?g|png)$/i;
-    const MAX = 10 * 1024 * 1024;
-    const tam = b => (b < 1048576 ? Math.round(b / 1024) + " KB" : (b / 1048576).toFixed(1) + " MB");
 
-    function mostrarError(msg) { error.textContent = msg; error.hidden = !msg; }
+    const VALIDO = /\.(pdf|docx?|txt|jpe?g|png)$/i;
+    const MAX = 10 * 1024 * 1024;
+    const MIN_TEXTO = 30;
+    const tam = b => (b < 1048576 ? Math.round(b / 1024) + " KB" : (b / 1048576).toFixed(1) + " MB");
+    let modo = "archivo"; // "archivo" | "texto" (solo para la oferta)
 
     function pintar() {
         areas.forEach(a => {
@@ -20,13 +25,32 @@ document.addEventListener("DOMContentLoaded", () => {
             a.querySelector(".file-name").textContent = f ? f.name : "Arrastrá un archivo o hacé click";
             a.querySelector(".file-meta").textContent = f ? tam(f.size) : "";
         });
-        boton.disabled = !areas.every(a => inputDe(a).files.length);
+        const cvListo = inputDe(areaCv).files.length > 0;
+        const ofertaLista = modo === "texto"
+            ? texto.value.trim().length >= MIN_TEXTO
+            : inputDe(areaOferta).files.length > 0;
+        boton.disabled = !(cvListo && ofertaLista);
+    }
+
+    function fijarModo(nuevo) {
+        modo = nuevo;
+        areaOferta.hidden = nuevo === "texto";
+        cajaTexto.hidden = nuevo !== "texto";
+        contador.hidden = nuevo !== "texto";
+        cambiar.textContent = nuevo === "texto"
+            ? "Subir un archivo en vez de pegar el texto"
+            : "Pegar el texto del puesto en vez de subir un archivo";
+        if (nuevo === "texto") texto.focus();
+        pintar();
     }
 
     function aceptar(area, file) {
-        if (!VALIDO.test(file.name)) return mostrarError("Ese formato no está permitido. Usá PDF, Word, JPG o PNG.");
-        if (file.size > MAX) return mostrarError("El archivo supera los 10 MB. Probá con uno más liviano.");
-        mostrarError("");
+        if (!VALIDO.test(file.name)) {
+            return toast.error("Formato no permitido", "Usá PDF, Word, TXT, JPG o PNG.");
+        }
+        if (file.size > MAX) {
+            return toast.error("El archivo es muy pesado", "Supera los 10 MB. Probá con uno más liviano.");
+        }
         const dt = new DataTransfer();
         dt.items.add(file);
         inputDe(area).files = dt.files;
@@ -48,14 +72,25 @@ document.addEventListener("DOMContentLoaded", () => {
         input.addEventListener("change", () => { if (input.files[0]) aceptar(a, input.files[0]); else pintar(); });
     });
 
+    cambiar.addEventListener("click", () => fijarModo(modo === "texto" ? "archivo" : "texto"));
+    texto.addEventListener("input", () => {
+        const n = texto.value.trim().length;
+        contador.textContent = n ? n.toLocaleString("es-AR") + " caracteres" : "";
+        pintar();
+    });
+
     form.addEventListener("submit", async e => {
         e.preventDefault();
         if (boton.disabled) return;
-        mostrarError("");
+
+        // Solo viaja lo que el usuario eligió: el texto pegado o el archivo de la oferta
+        const datos = new FormData(form);
+        datos.delete(modo === "texto" ? "requisitos" : "requisitos_texto");
+
         overlay.hidden = false;
         const minimo = new Promise(r => setTimeout(r, 2400));
         try {
-            const [r] = await Promise.all([fetch(form.action, { method: "POST", body: new FormData(form) }), minimo]);
+            const [r] = await Promise.all([fetch(form.action, { method: "POST", body: datos }), minimo]);
             if (!r.ok) {
                 let msg = "No pudimos procesar los archivos.";
                 try { msg = (await r.json()).error || msg; } catch (_) { }
@@ -65,9 +100,11 @@ document.addEventListener("DOMContentLoaded", () => {
             document.open(); document.write(html); document.close();
         } catch (ex) {
             overlay.hidden = true;
-            mostrarError(ex instanceof TypeError
-                ? "No pudimos conectar con el servidor. Revisá tu conexión y probá de nuevo."
-                : ex.message);
+            if (ex instanceof TypeError) {
+                toast.error("Sin conexión con el servidor", "Revisá tu conexión y probá de nuevo.");
+            } else {
+                toast.error("No pudimos analizar tu CV", ex.message);
+            }
         }
     });
 

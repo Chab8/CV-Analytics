@@ -183,7 +183,7 @@
                 </div>{% endfor %}
                 {% endif %}
             </aside>
-
+            {% include "cv_plantillas/_extra.html" %}
             <main>
                 {% if p.resumen %}
                 <h2>Perfil</h2>
@@ -215,7 +215,9 @@
                 {% if cv.extras %}
                 <h2>Cursos y certificaciones</h2>
                 {% for x in cv.extras %}
-                <div class="item"><strong>{{ x.titulo }}</strong>{% if x.institucion or x.anio %}<div class="desc">{{ x.institucion }}{% if x.institucion and x.anio %}, {% endif %}{{ x.anio }}</div>{% endif %}</div>
+                <div class="item"><strong>{{ x.titulo }}</strong>{% if x.institucion or x.anio %}<div class="desc">{{
+                        x.institucion }}{% if x.institucion and x.anio %}, {% endif %}{{ x.anio }}</div>{% endif %}
+                </div>
                 {% endfor %}
                 {% endif %}
             </main>

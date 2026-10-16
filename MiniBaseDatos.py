@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
-from werkzeug.utils import secure_filename
 import os
+import uuid
 import LectorDeTextos
 from ComparadorDeTexto import comparar_textos
 import google.generativeai as genai
@@ -12,11 +12,11 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
-ALLOWED_EXTENSIONS = {'pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'}
+ALLOWED_EXTENSIONS = {'pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'txt'}
+MAX_TEXTO_OFERTA = 20000
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-print("API Key detectada:", API_KEY)  # debug
 
 if API_KEY:
     genai.configure(api_key=API_KEY)
@@ -34,6 +34,30 @@ except Exception as e:
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def leer_texto(ruta):
+    """Lee un .txt probando codificaciones comunes; el resto de formatos los resuelve LectorDeTextos."""
+    if ruta.lower().endswith(".txt"):
+        with open(ruta, "rb") as f:
+            crudo = f.read()
+        for codificacion in ("utf-8-sig", "cp1252"):
+            try:
+                return crudo.decode(codificacion)
+            except UnicodeDecodeError:
+                pass
+        return crudo.decode("latin-1", errors="ignore")
+    return LectorDeTextos.extraer_texto_archivo(ruta)
+
+def guardar_temporal(archivo, rutas):
+    """Guarda con nombre único (dos usuarios con el mismo nombre de archivo ya no se pisan)."""
+    extension = os.path.splitext(archivo.filename)[1].lower()
+    ruta = os.path.join(app.config['UPLOAD_FOLDER'], f"{uuid.uuid4().hex}{extension}")
+    archivo.save(ruta)
+    rutas.append(ruta)
+    return ruta
+
+def error_json(mensaje, codigo=400):
+    return jsonify({'error': mensaje}), codigo
 
 def generar_sugerencias_con_gemini(texto_cv, texto_req):
     """
@@ -137,56 +161,52 @@ def subir():
 
 @app.route('/comparar', methods=['POST'])
 def comparar():
-    if 'cv' not in request.files or 'requisitos' not in request.files:
-        return jsonify({'error': 'Faltan archivos'}), 400
+    cv_file = request.files.get('cv')
+    req_file = request.files.get('requisitos')
+    texto_oferta = (request.form.get('requisitos_texto') or '').strip()[:MAX_TEXTO_OFERTA]
+    hay_archivo_oferta = bool(req_file and req_file.filename)
 
-    cv_file = request.files['cv']
-    req_file = request.files['requisitos']
+    if not cv_file or not cv_file.filename:
+        return error_json('Falta tu CV. Subí un archivo para continuar.')
+    if not texto_oferta and not hay_archivo_oferta:
+        return error_json('Falta la oferta. Subí un archivo o pegá el texto del puesto.')
 
-    if cv_file.filename == '' or req_file.filename == '':
-        return jsonify({'error': 'Archivos vacíos'}), 400
+    a_validar = [cv_file] + ([req_file] if hay_archivo_oferta and not texto_oferta else [])
+    if not all(allowed_file(f.filename) for f in a_validar):
+        return error_json('Formato no permitido. Usá PDF, Word, TXT, JPG o PNG.')
 
-    if not allowed_file(cv_file.filename) or not allowed_file(req_file.filename):
-        return jsonify({'error': 'Tipo de archivo no permitido. Solo PDF, DOC o DOCX.'}), 400
-
-
-    cv_filename = secure_filename(cv_file.filename)
-    req_filename = secure_filename(req_file.filename)
-
-    cv_path = os.path.join(app.config['UPLOAD_FOLDER'], cv_filename)
-    req_path = os.path.join(app.config['UPLOAD_FOLDER'], req_filename)
-
+    rutas = []
     try:
-        cv_file.save(cv_path)
-        req_file.save(req_path)
+        texto_cv = leer_texto(guardar_temporal(cv_file, rutas))
+        texto_req = texto_oferta or leer_texto(guardar_temporal(req_file, rutas))
     except Exception as e:
-        return jsonify({'error': f'No se pudieron guardar los archivos: {str(e)}'}), 500
+        print(f"[❗] Error al procesar archivos: {e}")
+        return error_json('No pudimos procesar los archivos. Probá con otro formato.', 500)
+    finally:
+        for ruta in rutas:
+            try:
+                os.remove(ruta)
+            except OSError as e:
+                print(f"Error al eliminar archivos: {e}")
 
-    texto_cv = LectorDeTextos.extraer_texto_archivo(cv_path)
-    texto_req = LectorDeTextos.extraer_texto_archivo(req_path)
-    
-    if not texto_cv.strip() or not texto_req.strip():
-        return render_template("resultado.html", similitud="0%", feedback="❗ No se pudo leer el contenido de uno o ambos archivos PDF. Verificá que no estén vacíos y que tengan texto real.")
+    if not texto_cv.strip():
+        return error_json('No pudimos leer tu CV. Verificá que tenga texto real y no esté vacío.', 422)
+    if not texto_req.strip():
+        return error_json('No pudimos leer la oferta. Verificá que tenga texto real y no esté vacía.', 422)
 
-    resultado = comparar_textos(texto_cv, texto_req)
-    similitud = f"{resultado[0]}"
-    feedback = resultado[1]
+    porcentaje, feedback = comparar_textos(texto_cv, texto_req)
+    if feedback.startswith('❗'):
+        return error_json('No pudimos conectar con el servicio de análisis. Probá de nuevo en unos minutos.', 502)
 
     sugerencias = ""
     # Se generan sugerencias si la compatibilidad no es casi perfecta
-    if resultado[0] < 95: 
+    if porcentaje < 95:
         sugerencias = generar_sugerencias_con_gemini(texto_cv, texto_req)
-    else:    
-        feedback = ( "¡Excelente! Tu CV está muy alineado con los requisitos del puesto. "
-        "No es necesario realizar cambios importantes."
-        )
-    try:
-        os.remove(cv_path)
-        os.remove(req_path)
-    except OSError as e:
-        print(f"Error al eliminar archivos: {e}")
+    else:
+        feedback = ("¡Excelente! Tu CV está muy alineado con los requisitos del puesto. "
+                    "No es necesario realizar cambios importantes.")
 
-    return render_template("resultado.html", similitud=similitud, feedback=feedback, sugerencias=sugerencias)
+    return render_template("resultado.html", similitud=f"{porcentaje}", feedback=feedback, sugerencias=sugerencias)
 
 
 app.register_blueprint(crear_cv_bp)

@@ -3,7 +3,8 @@
 {% block body_class %}page-result{% endblock %}
 {% block content %}
 {% set s = (similitud | string | replace('%', '')) | int %}
-<main class="wrap result">
+<main class="wrap result" data-puntaje="{{ s }}"
+    data-sugerencias-error="{{ 1 if (sugerencias and sugerencias.startswith('⚠')) else 0 }}">
     <aside class="score-card">
         <div class="score">
             <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
@@ -50,4 +51,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/progreso.js') }}"></script>{% endblock %}
+<script src="{{ url_for('static', filename='js/progreso.js') }}"></script>
+<script src="{{ url_for('static', filename='js/avisosResultado.js') }}"></script>{% endblock %}

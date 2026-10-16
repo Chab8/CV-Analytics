@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     const STORAGE_KEY = "cvAnalytics.cvDraft";
+    const PREF_VISTA = "cvAnalytics.vistaPrevia";
     const ANCHO_A4 = 794; // px a 96dpi
     const form = document.getElementById("cv-form");
     const pasos = [...form.querySelectorAll(".paso")];
@@ -11,16 +12,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const radios = [...form.querySelectorAll('input[name="plantilla"]')];
     const frame = document.getElementById("cv-preview");
     const previewWrap = document.getElementById("preview-wrap");
-    const previewError = document.getElementById("preview-error");
     const ULTIMO = pasos.length - 1;
-    const LISTAS = ["experiencia", "educacion", "idiomas", "extras"];
+    const LISTAS = ["experiencia", "educacion", "idiomas", "extras", "entradas"];
+
+    // Vista previa en vivo (panel derecho)
+    const wizardBody = document.getElementById("wizard-body");
+    const vista = document.getElementById("vista");
+    const vistaScroll = document.getElementById("vista-scroll");
+    const vistaWrap = document.getElementById("vista-wrap");
+    const vistaFrame = document.getElementById("vista-frame");
+    const vistaVacio = document.getElementById("vista-vacio");
+    const vistaEstado = document.getElementById("vista-estado");
+    const vistaToggle = document.getElementById("vista-toggle");
+    const angosto = matchMedia("(max-width: 1100px)");
+    let vistaAbierta = (() => {
+        try { const v = localStorage.getItem(PREF_VISTA); if (v !== null) return v === "1"; } catch (_) { }
+        return !angosto.matches; // en pantallas angostas arranca cerrada
+    })();
+    let timerVista = 0, ticketVista = 0, fallaAvisada = false;
 
     /* ---------------- Estado ---------------- */
     const vacio = () => ({
         plantilla: radios[0] ? radios[0].value : null,
         paso: 0, max: 0,
         personal: { nombre: "", titulo: "", email: "", telefono: "", ubicacion: "", linkedin: "", web: "", resumen: "" },
-        experiencia: [], educacion: [], habilidades: [], idiomas: [], extras: []
+        extra: { nombre: "" },
+        experiencia: [], educacion: [], habilidades: [], idiomas: [], extras: [], entradas: []
     });
 
     function cargar() {
@@ -30,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (g && typeof g === "object") {
                 Object.assign(base, g);
                 base.personal = Object.assign(vacio().personal, g.personal);
+                base.extra = Object.assign(vacio().extra, g.extra);
                 LISTAS.forEach(k => { if (!Array.isArray(base[k])) base[k] = []; });
                 if (!Array.isArray(base.habilidades)) base.habilidades = [];
             }
@@ -44,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function guardar() {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(estado)); } catch (_) { /* sin storage: seguimos igual */ }
+        programarVista();
     }
 
     /* ---------------- Campos simples (data-path) ---------------- */
@@ -56,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ---------------- Auto-formato de fecha MM/AAAA ---------------- */
     function aplicarAutoSlash(input) {
         input.addEventListener("keydown", e => {
-            // Guardar si era borrar
             input._borrando = e.key === "Backspace" || e.key === "Delete";
         });
         input.addEventListener("input", () => {
@@ -69,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Aplicar a campos existentes (data-path) — no los hay con MM/AAAA en personal, pero por si se agregan
     form.querySelectorAll(".fecha-mmaaaa").forEach(aplicarAutoSlash);
 
     /* ---------------- Validación de rango de fechas ---------------- */
@@ -132,7 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
             hasta.disabled = chk.checked;
             if (chk.checked) hasta.value = "";
         }
-        // Botón "En curso" para educacion
         const btnEnCurso = nodo.querySelector(".btn-en-curso");
         if (btnEnCurso && hasta) {
             const enCurso = hasta.value.trim().toLowerCase() === "en curso" || hasta.disabled;
@@ -162,14 +178,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         sincronizarActual(nodo);
 
-        // Auto-slash en campos MM/AAAA dentro del item
         nodo.querySelectorAll(".fecha-mmaaaa").forEach(aplicarAutoSlash);
 
-        // Botón "En curso" para educacion
         const btnEnCurso = nodo.querySelector(".btn-en-curso");
         if (btnEnCurso) {
             const hastaInput = nodo.querySelector('[data-field="hasta"]');
-            // Restaurar estado "En curso" si el valor guardado lo indica
             if (valores.actual === true || (hastaInput && hastaInput.value.trim().toLowerCase() === "en curso")) {
                 if (hastaInput) { hastaInput.value = "En curso"; hastaInput.disabled = true; }
                 btnEnCurso.classList.add("activo");
@@ -177,12 +190,10 @@ document.addEventListener("DOMContentLoaded", () => {
             btnEnCurso.addEventListener("click", () => {
                 if (!hastaInput) return;
                 if (hastaInput.disabled) {
-                    // Desactivar "En curso"
                     hastaInput.disabled = false;
                     hastaInput.value = "";
                     btnEnCurso.classList.remove("activo");
                 } else {
-                    // Activar "En curso"
                     hastaInput.value = "En curso";
                     hastaInput.disabled = true;
                     btnEnCurso.classList.add("activo");
@@ -254,7 +265,10 @@ document.addEventListener("DOMContentLoaded", () => {
     function agregarTag(texto) {
         texto = texto.trim().slice(0, 60);
         if (!texto) return;
-        if (estado.habilidades.length >= 40) return;
+        if (estado.habilidades.length >= 40) {
+            toast.info("Llegaste al máximo", "Podés cargar hasta 40 habilidades.");
+            return;
+        }
         const yaEsta = estado.habilidades.some(h => h.toLowerCase() === texto.toLowerCase());
         if (!yaEsta) estado.habilidades.push(texto);
         guardar();
@@ -291,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     selectPlantilla.addEventListener("change", () => fijarPlantilla(selectPlantilla.value, true));
     fijarPlantilla(estado.plantilla, false);
 
-    /* ---------------- Escalado de miniaturas y vista previa ---------------- */
+    /* ---------------- Escalado de miniaturas y vistas previas ---------------- */
     function escalarMiniaturas() {
         form.querySelectorAll(".miniatura").forEach(m => {
             const f = m.querySelector("iframe");
@@ -299,20 +313,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function ajustarPreview() {
-        const w = previewWrap.clientWidth;
+    function ajustar(wrap, fr) {
+        const w = wrap.clientWidth;
         if (!w) return;
         const escala = w / ANCHO_A4;
         let alto = 1123;
-        try { alto = Math.max(1123, frame.contentDocument.documentElement.scrollHeight); } catch (_) { }
-        frame.style.height = alto + "px";
-        frame.style.transform = `scale(${escala})`;
-        previewWrap.style.height = (alto * escala) + "px";
+        try { alto = Math.max(1123, fr.contentDocument.documentElement.scrollHeight); } catch (_) { }
+        fr.style.height = alto + "px";
+        fr.style.transform = `scale(${escala})`;
+        wrap.style.height = (alto * escala) + "px";
     }
+
+    const ajustarPreview = () => ajustar(previewWrap, frame);
 
     /* ---------------- Construir payload limpio para el render ---------------- */
     function construirPayload() {
-        // Clonar datos asegurando que "En curso" en educación se convierta a actual=true
+        // "En curso" en educación se convierte a actual=true
         const educacionLimpia = (estado.educacion || []).map(e => {
             const copia = { ...e };
             if (copia.hasta && copia.hasta.trim().toLowerCase() === "en curso") {
@@ -326,31 +342,30 @@ document.addEventListener("DOMContentLoaded", () => {
             plantilla: estado.plantilla,
             datos: {
                 ...estado,
-                educacion: educacionLimpia
+                educacion: educacionLimpia,
+                seccion_extra: { nombre: estado.extra.nombre, entradas: estado.entradas }
             }
         };
     }
+
+    const cabeceras = { "Content-Type": "application/json" };
 
     let ticket = 0;
     async function generarVistaPrevia() {
         const mio = ++ticket;
         volcarTagPendiente();
-        previewError.textContent = "";
-        previewError.style.display = "none";
 
         const renderUrl = form.dataset.renderUrl;
         if (!renderUrl) {
-            previewError.textContent = "Error de configuración: URL de render no encontrada.";
-            previewError.style.display = "block";
+            toast.error("Error de configuración", "No encontramos la URL para generar el CV.");
             return;
         }
 
         try {
-            const payload = construirPayload();
             const r = await fetch(renderUrl, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+                headers: cabeceras,
+                body: JSON.stringify(construirPayload())
             });
             if (!r.ok) {
                 const texto = await r.text().catch(() => "");
@@ -362,11 +377,78 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (err) {
             console.error("[CV Preview]", err);
             if (mio === ticket) {
-                previewError.textContent = "No pudimos generar la vista previa. Probá de nuevo en unos segundos.";
-                previewError.style.display = "block";
+                toast.error("No pudimos generar la vista previa", "Probá de nuevo en unos segundos.");
             }
         }
     }
+
+    /* ---------------- Vista previa en vivo ---------------- */
+    function hayDatos() {
+        const conTexto = o => Object.values(o).some(v => typeof v === "string" && v.trim());
+        return conTexto(estado.personal) || conTexto(estado.extra) || estado.habilidades.length > 0
+            || LISTAS.some(k => estado[k].some(conTexto));
+    }
+
+    async function actualizarVista() {
+        if (!vistaAbierta || estado.paso === ULTIMO) return;
+        const mio = ++ticketVista;
+        const conDatos = hayDatos();
+        vistaVacio.hidden = conDatos;
+        vistaWrap.hidden = !conDatos;
+        if (!conDatos) { vistaEstado.textContent = ""; return; }
+
+        try {
+            const r = await fetch(form.dataset.renderUrl, {
+                method: "POST",
+                headers: cabeceras,
+                body: JSON.stringify(construirPayload())
+            });
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            const html = await r.text();
+            if (mio !== ticketVista) return;
+            const d = vistaFrame.contentDocument;
+            d.open(); d.write(html); d.close(); // sin recargar el iframe: no parpadea
+            ajustar(vistaWrap, vistaFrame);
+            requestAnimationFrame(() => ajustar(vistaWrap, vistaFrame));
+            vistaEstado.textContent = "Actualizado";
+            fallaAvisada = false;
+        } catch (err) {
+            console.error("[CV Vista previa]", err);
+            if (mio !== ticketVista) return;
+            vistaEstado.textContent = "No se pudo actualizar";
+            if (!fallaAvisada) {
+                fallaAvisada = true;
+                toast.error("No pudimos actualizar la vista previa", "Tus datos están a salvo. Seguí completando.");
+            }
+        }
+    }
+
+    function programarVista() {
+        if (!vistaAbierta || estado.paso === ULTIMO) return;
+        vistaEstado.textContent = "Actualizando…";
+        clearTimeout(timerVista);
+        timerVista = setTimeout(actualizarVista, 350);
+    }
+
+    function aplicarVista() {
+        const visible = vistaAbierta && estado.paso !== ULTIMO;
+        wizardBody.classList.toggle("sin-vista", !visible);
+        vista.inert = !visible;
+        vistaToggle.hidden = estado.paso === ULTIMO;
+        vistaToggle.setAttribute("aria-pressed", String(vistaAbierta));
+        if (visible) actualizarVista();
+    }
+
+    function fijarVista(abierta) {
+        vistaAbierta = abierta;
+        try { localStorage.setItem(PREF_VISTA, abierta ? "1" : "0"); } catch (_) { }
+        aplicarVista();
+    }
+
+    vistaToggle.addEventListener("click", () => fijarVista(!vistaAbierta));
+    document.getElementById("vista-ocultar").addEventListener("click", () => fijarVista(false));
+    new ResizeObserver(() => ajustar(vistaWrap, vistaFrame)).observe(vistaScroll);
+
     frame.addEventListener("load", () => {
         ajustarPreview();
         previewWrap.classList.remove("listo");
@@ -375,10 +457,109 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     window.addEventListener("resize", () => { escalarMiniaturas(); ajustarPreview(); });
 
-    document.getElementById("btn-descargar").addEventListener("click", () => {
-        frame.contentWindow.focus();
-        frame.contentWindow.print();
+    /* ---------------- Descarga en varios formatos ---------------- */
+    const btnDescargar = document.getElementById("btn-descargar");
+    const txtDescargar = document.getElementById("descarga-txt");
+    const menu = document.getElementById("menu-descarga");
+    const ETIQUETA = { pdf: "PDF", docx: "Word", txt: "texto", jpg: "JPG", png: "PNG" };
+    const opciones = () => [...menu.querySelectorAll("[role=menuitem]")];
+
+    function abrirMenu(abrir) {
+        menu.hidden = !abrir;
+        btnDescargar.setAttribute("aria-expanded", String(abrir));
+        if (abrir) opciones()[0].focus();
+    }
+
+    btnDescargar.addEventListener("click", () => abrirMenu(menu.hidden));
+    document.addEventListener("click", e => {
+        if (!menu.hidden && !e.target.closest("#descarga")) abrirMenu(false);
     });
+    menu.addEventListener("keydown", e => {
+        const lista = opciones();
+        const i = lista.indexOf(document.activeElement);
+        if (e.key === "Escape") { abrirMenu(false); btnDescargar.focus(); }
+        else if (e.key === "ArrowDown") { e.preventDefault(); lista[(i + 1) % lista.length].focus(); }
+        else if (e.key === "ArrowUp") { e.preventDefault(); lista[(i - 1 + lista.length) % lista.length].focus(); }
+    });
+    menu.addEventListener("click", e => {
+        const b = e.target.closest("[data-formato]");
+        if (!b) return;
+        abrirMenu(false);
+        descargar(b.dataset.formato);
+    });
+
+    function nombreArchivo(ext) {
+        const n = (estado.personal.nombre || "").replace(/[\\/:*?"<>|]+/g, "").trim();
+        return `CV${n ? " - " + n : ""}.${ext}`;
+    }
+
+    function guardarBlob(blob, ext) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = nombreArchivo(ext);
+        document.body.append(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+    }
+
+    // html2canvas solo se descarga si el usuario pide una imagen
+    let cargandoH2c = null;
+    function cargarHtml2canvas() {
+        if (window.html2canvas) return Promise.resolve(window.html2canvas);
+        cargandoH2c ||= new Promise((ok, mal) => {
+            const s = document.createElement("script");
+            s.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+            s.onload = () => ok(window.html2canvas);
+            s.onerror = () => { cargandoH2c = null; mal(new Error("No pudimos cargar el generador de imágenes. Revisá tu conexión.")); };
+            document.head.append(s);
+        });
+        return cargandoH2c;
+    }
+
+    async function descargar(formato) {
+        if (formato === "pdf") {
+            frame.contentWindow.focus();
+            frame.contentWindow.print();
+            toast.info("Elegí «Guardar como PDF»", "En la ventana de impresión, cambiá el destino a PDF.");
+            return;
+        }
+
+        btnDescargar.disabled = true;
+        txtDescargar.textContent = "Generando…";
+        try {
+            if (formato === "docx" || formato === "txt") {
+                const r = await fetch(form.dataset.exportUrl.replace("__", formato), {
+                    method: "POST",
+                    headers: cabeceras,
+                    body: JSON.stringify(construirPayload())
+                });
+                if (!r.ok) {
+                    let msg = "No pudimos generar el archivo.";
+                    try { msg = (await r.json()).error || msg; } catch (_) { }
+                    throw new Error(msg);
+                }
+                guardarBlob(await r.blob(), formato);
+            } else {
+                const h2c = await cargarHtml2canvas();
+                const hoja = frame.contentDocument.querySelector(".hoja");
+                if (!hoja) throw new Error("Todavía no se generó la vista de tu CV.");
+                const canvas = await h2c(hoja, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
+                const mime = formato === "jpg" ? "image/jpeg" : "image/png";
+                const blob = await new Promise(ok => canvas.toBlob(ok, mime, 0.92));
+                if (!blob) throw new Error("El navegador no pudo crear la imagen.");
+                guardarBlob(blob, formato);
+            }
+            toast.ok("CV descargado", `Se guardó como ${ETIQUETA[formato]}.`);
+        } catch (err) {
+            console.error("[CV Descarga]", err);
+            toast.error("No pudimos descargar tu CV", err.message || "Probá de nuevo en unos segundos.");
+        } finally {
+            btnDescargar.disabled = false;
+            txtDescargar.textContent = "Descargar CV";
+        }
+    }
 
     document.getElementById("btn-reiniciar").addEventListener("click", () => {
         if (!confirm("Se borrarán todos los datos cargados. ¿Continuar?")) return;
@@ -404,16 +585,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const PASOS_CON_FECHAS = { 2: ["experiencia", "mmaaaa"], 3: ["educacion", "aaaa"], 5: ["extras", "aaaa"] };
 
     function validar(n) {
-        const err = pasos[n].querySelector(".error-paso");
         if (PASOS_CON_FECHAS[n]) {
             const [lista, tipo] = PASOS_CON_FECHAS[n];
-            let primero = null;
+            let primero = null, msg = "";
             contenedor(lista).querySelectorAll(".item").forEach(item => {
                 const r = revisarItem(item, tipo);
                 mostrarErrorFecha(item, r && r.msg);
-                if (r && !primero) primero = item.querySelector(`[data-field="${r.campo}"]`);
+                if (r && !primero) { primero = item.querySelector(`[data-field="${r.campo}"]`); msg = r.msg; }
             });
-            if (primero) primero.focus();
+            if (primero) { primero.focus(); toast.error("Revisá las fechas", msg); }
             return !primero;
         }
         if (n !== 1) return true;
@@ -422,8 +602,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let msg = "", campo = null;
         if (!nombre.value.trim()) { msg = "Ingresá tu nombre completo."; campo = nombre; }
         else if (!email.value.trim() || !email.checkValidity()) { msg = "Ingresá un email válido."; campo = email; }
-        if (err) err.textContent = msg;
-        if (campo) campo.focus();
+        if (campo) { campo.focus(); toast.error("Faltan datos obligatorios", msg); }
         return !msg;
     }
 
@@ -450,6 +629,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnSiguiente.hidden = estado.paso === ULTIMO;
         btnSiguiente.textContent = estado.paso === ULTIMO - 1 ? "Ver mi CV ✓" : "Siguiente →";
         guardar();
+        aplicarVista();
         escalarMiniaturas();
         if (estado.paso === ULTIMO) generarVistaPrevia();
         window.scrollTo({ top: 0, behavior: "smooth" });

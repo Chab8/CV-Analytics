@@ -1,0 +1,11 @@
+{# Sección libre del usuario. Se incluye al final de cada plantilla de CV. #}
+{% set extra = cv.seccion_extra if cv.seccion_extra is defined else none %}
+{% if extra and extra.entradas %}
+<h2>{{ extra.nombre or "Otros" }}</h2>
+{% for e in extra.entradas %}
+<div class="item">
+    <div class="fila"><strong>{{ e.titulo }}</strong><span class="fecha">{{ e.fecha }}</span></div>
+    {% if e.descripcion %}<p class="desc">{{ e.descripcion }}</p>{% endif %}
+</div>
+{% endfor %}
+{% endif %}
