@@ -112,7 +112,36 @@ document.addEventListener("DOMContentLoaded", () => {
         return { fecha: f, error: "" };
     }
 
+    const EN_CURSO = /^(en curso|actualidad|presente|actual)$/i;
+    const MSG_FECHA = "Usá un año (2024), MM/AAAA o un período (2022 - 2024).";
+
+    function revisarFechaLibre(texto) {
+        texto = (texto || "").trim();
+        if (!texto) return null; // es opcional
+        const partes = texto.split(/\s*[-–—]\s*/);
+        if (partes.length > 2 || partes.some(p => !p)) return { msg: MSG_FECHA, campo: "fecha" };
+        const fechas = [];
+        for (let i = 0; i < partes.length; i++) {
+            const p = partes[i];
+            if (EN_CURSO.test(p)) {
+                if (i === 1) { fechas.push(null); continue; }
+                return { msg: MSG_FECHA, campo: "fecha" };
+            }
+            if (!/\d/.test(p)) return { msg: MSG_FECHA, campo: "fecha" };
+            const r = parsear(p, p.includes("/") ? "mmaaaa" : "aaaa");
+            if (r.error) return { msg: r.error, campo: "fecha" };
+            fechas.push(r.fecha);
+        }
+        if (fechas.length === 2 && fechas[0] != null && fechas[1] != null && fechas[0] > fechas[1])
+            return { msg: "La fecha de inicio debe ser anterior a la de finalización.", campo: "fecha" };
+        return null;
+    }
+
     function revisarItem(nodo, tipo) {
+        if (tipo === "libre") {
+            const el = nodo.querySelector('[data-field="fecha"]');
+            return revisarFechaLibre(el ? el.value : "");
+        }
         const valor = n => { const el = nodo.querySelector(`[data-field="${n}"]`); return el && !el.disabled ? el.value : ""; };
         const campos = nodo.querySelector('[data-field="anio"]') ? ["anio"] : ["desde", "hasta"];
         const res = {};
@@ -210,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const inicial = estado[nombre].length ? estado[nombre] : [{}];
         inicial.forEach(v => cont.append(crearItem(nombre, v)));
 
-        const tipoFecha = (nombre === "experiencia") ? "mmaaaa" : "aaaa";
+        const tipoFecha = { experiencia: "mmaaaa", entradas: "libre" }[nombre] || "aaaa";
 
         const alCambiar = e => {
             const item = e.target.closest(".item");
@@ -448,6 +477,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     vistaToggle.addEventListener("click", () => fijarVista(!vistaAbierta));
+    const vistaExpandir = document.getElementById("vista-expandir");
+    let vistaExpandida = false;
+
+    function expandirVista(si) {
+        vistaExpandida = si;
+        vista.classList.toggle("expandida", si);
+        document.body.classList.toggle("vista-completa", si);
+        // Lo de atrás no debe recibir foco ni clicks mientras está en pantalla completa
+        [document.querySelector(".header"), document.querySelector(".top"),
+        document.querySelector(".barra"), form].forEach(el => { if (el) el.inert = si; });
+        const txt = si ? "Salir de pantalla completa" : "Ver en pantalla completa";
+        vistaExpandir.setAttribute("aria-label", txt);
+        vistaExpandir.title = txt;
+        vistaExpandir.setAttribute("aria-pressed", String(si));
+        vistaScroll.scrollTop = 0;
+        requestAnimationFrame(() => ajustar(vistaWrap, vistaFrame));
+    }
+
+    vistaExpandir.addEventListener("click", () => expandirVista(!vistaExpandida));
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && vistaExpandida) expandirVista(false);
+    });
     document.getElementById("vista-ocultar").addEventListener("click", () => fijarVista(false));
     new ResizeObserver(() => ajustar(vistaWrap, vistaFrame)).observe(vistaScroll);
 
@@ -551,7 +602,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify(construirPayload())
                 });
                 if (!r.ok) {
-                    let msg = "No pudimos generar el archivo.";
+                    let msg = `No pudimos generar el archivo (error ${r.status}).`;
                     try { msg = (await r.json()).error || msg; } catch (_) { }
                     throw new Error(msg);
                 }
@@ -597,7 +648,7 @@ document.addEventListener("DOMContentLoaded", () => {
         stepper.append(li);
     });
 
-    const PASOS_CON_FECHAS = { 2: ["experiencia", "mmaaaa"], 3: ["educacion", "aaaa"], 5: ["extras", "aaaa"] };
+    const PASOS_CON_FECHAS = { 2: ["experiencia", "mmaaaa"], 3: ["educacion", "aaaa"], 5: ["extras", "aaaa"], 6: ["entradas", "libre"] };
 
     function validar(n) {
         if (PASOS_CON_FECHAS[n]) {

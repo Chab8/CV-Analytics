@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, abort, jsonify, send_file
+from flask import Blueprint, render_template, request, abort, jsonify, send_file, current_app
 import io
 import re
 from plantillas_cv import PLANTILLAS, DATOS_MUESTRA, obtener_plantilla
@@ -22,7 +22,7 @@ CAMPOS_ENTRADAS = {"titulo": 150, "fecha": 40, "descripcion": 800}
 
 FORMATOS_EXPORTABLES = {
     "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "txt": "text/plain; charset=utf-8",
+    "txt": "text/plain",
 }
 
 
@@ -128,13 +128,18 @@ def exportar(formato):
     if not nombre:
         return jsonify(error="Falta tu nombre para generar el archivo."), 400
 
-    contenido = generar_docx(cv) if formato == "docx" else generar_txt(cv)
+    try:
+        contenido = generar_docx(cv) if formato == "docx" else generar_txt(cv)
+    except Exception:
+        current_app.logger.exception("Error al exportar el CV a %s", formato)
+        return jsonify(error="No pudimos generar el archivo. Probá de nuevo en unos segundos."), 500
+
     limpio = re.sub(r'[\\/:*?"<>|]+', "", nombre).strip()
     return send_file(
         io.BytesIO(contenido),
         mimetype=FORMATOS_EXPORTABLES[formato],
         as_attachment=True,
-        download_name=f"CV - {limpio}.{formato}",
+        download_name=f"{limpio} CV Analytics.{formato}",
     )
 
 

@@ -430,6 +430,71 @@ main.wizard {
     font-size: .9rem
 }
 
+.vista-acciones {
+    display: flex;
+    gap: 8px;
+    flex: none
+}
+
+.vista-expandir .ico-contraer {
+    display: none
+}
+
+/* Pantalla completa */
+.vista.expandida {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    width: auto;
+    background: var(--bg);
+    border: 0;
+    border-radius: 0;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    animation: vista-completa .25s ease
+}
+
+.vista.expandida .vista-expandir .ico-expandir {
+    display: none
+}
+
+.vista.expandida .vista-expandir .ico-contraer {
+    display: block
+}
+
+.vista.expandida #vista-ocultar {
+    display: none
+}
+
+.vista.expandida .vista-head {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 18px 20px 12px
+}
+
+.vista.expandida .vista-scroll {
+    padding: 4px 20px 32px
+}
+
+.vista.expandida .vista-hoja,
+.vista.expandida .vista-vacio {
+    max-width: 980px;
+    margin-inline: auto
+}
+
+body.vista-completa {
+    overflow: hidden
+}
+
+@keyframes vista-completa {
+    from {
+        opacity: 0;
+        transform: scale(.98)
+    }
+}
+
 /* En pantallas angostas la vista se abre como panel lateral */
 @media (max-width: 1100px) {
 

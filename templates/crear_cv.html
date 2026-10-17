@@ -177,12 +177,25 @@
                     <strong>Así va quedando</strong>
                     <span class="vista-estado" id="vista-estado" aria-live="polite"></span>
                 </div>
-                <button type="button" class="vista-cerrar" id="vista-ocultar" aria-label="Ocultar vista previa">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" aria-hidden="true">
-                        <path d="M9 6l6 6-6 6" />
-                    </svg>
-                </button>
+                <div class="vista-acciones">
+                    <button type="button" class="vista-cerrar vista-expandir" id="vista-expandir"
+                        aria-label="Ver en pantalla completa" title="Ver en pantalla completa" aria-pressed="false">
+                        <svg class="ico-expandir" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                        </svg>
+                        <svg class="ico-contraer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" />
+                        </svg>
+                    </button>
+                    <button type="button" class="vista-cerrar" id="vista-ocultar" aria-label="Ocultar vista previa">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9 6l6 6-6 6" />
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="vista-scroll" id="vista-scroll">
                 <div class="vista-hoja" id="vista-wrap" hidden>
@@ -277,7 +290,7 @@
                 class="btn-quitar" aria-label="Quitar">✕</button></div>
         <div class="grid-2">
             <label>Título<input type="text" data-field="titulo" maxlength="150"></label>
-            <label>Fecha o período (opcional)<input type="text" data-field="fecha" placeholder="Ej: 2024"
+            <label>Fecha o período (opcional)<input type="text" data-field="fecha" placeholder="Ej: 2024 o 2022 - 2024"
                     maxlength="40"></label>
         </div>
         <label>Descripción

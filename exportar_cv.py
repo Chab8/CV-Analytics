@@ -99,7 +99,16 @@ def _linea_inferior(par):
     for k, v in (("val", "single"), ("sz", "6"), ("space", "1"), ("color", "0B4B64")):
         linea.set(qn("w:" + k), v)
     borde.append(linea)
-    par._p.get_or_add_pPr().append(borde)
+    # pBdr tiene que ir antes de estos elementos para respetar el orden del esquema
+    par._p.get_or_add_pPr().insert_element_before(
+        borde,
+        "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap",
+        "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN",
+        "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind",
+        "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc",
+        "w:textDirection", "w:textAlignment", "w:textboxTightWrap",
+        "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange",
+    )
 
 
 def generar_docx(cv):
