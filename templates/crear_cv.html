@@ -206,10 +206,13 @@
             <label>Empresa<input type="text" data-field="empresa" maxlength="120"></label>
             <label>Desde<input type="text" data-field="desde" placeholder="MM/AAAA" maxlength="7"
                     class="fecha-mmaaaa"></label>
-            <label>Hasta<input type="text" data-field="hasta" placeholder="MM/AAAA" maxlength="7"
-                    class="fecha-mmaaaa"></label>
+            <label>Hasta
+                <div class="hasta-row">
+                    <input type="text" data-field="hasta" placeholder="MM/AAAA" maxlength="7" class="fecha-mmaaaa">
+                    <button type="button" class="btn-en-curso" data-field-toggle="hasta">En curso</button>
+                </div>
+            </label>
         </div>
-        <label class="check"><input type="checkbox" data-field="actual"> Trabajo actual</label>
         <label>Descripción / logros
             <textarea data-field="descripcion" rows="2" maxlength="1500"
                 placeholder="Una línea por logro. Incluí números cuando puedas."></textarea>

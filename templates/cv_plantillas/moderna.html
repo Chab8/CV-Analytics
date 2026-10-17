@@ -134,9 +134,17 @@
             font-size: 9pt;
         }
 
+        .item strong {
+            font-size: 11pt;
+            font-weight: 700;
+            color: #111e24;
+        }
+
         .sub {
             color: var(--acento);
-            font-weight: 600;
+            font-weight: 400;
+            font-size: 9.5pt;
+            margin-top: .3mm;
         }
 
         .desc {
@@ -183,7 +191,6 @@
                 </div>{% endfor %}
                 {% endif %}
             </aside>
-            {% include "cv_plantillas/_extra.html" %}
             <main>
                 {% if p.resumen %}
                 <h2>Perfil</h2>
@@ -212,10 +219,12 @@
                 {% endfor %}
                 {% endif %}
 
+                {% include "cv_plantillas/_extra.html" %}
+
                 {% if cv.extras %}
                 <h2>Cursos y certificaciones</h2>
                 {% for x in cv.extras %}
-                <div class="item"><strong>{{ x.titulo }}</strong>{% if x.institucion or x.anio %}<div class="desc">{{
+                <div class="item"><strong>{{ x.titulo }}</strong>{% if x.institucion or x.anio %}<div class="sub">{{
                         x.institucion }}{% if x.institucion and x.anio %}, {% endif %}{{ x.anio }}</div>{% endif %}
                 </div>
                 {% endfor %}

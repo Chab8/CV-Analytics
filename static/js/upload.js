@@ -11,6 +11,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const cambiar = document.getElementById("cambiar-oferta");
     const contador = document.getElementById("contador");
     const inputDe = a => document.getElementById(a.dataset.target);
+    const tituloOverlay = document.getElementById("overlay-msg");
+    // [milisegundos desde el inicio, texto]. El último queda fijo: si tarda, no se reinicia.
+    const MENSAJES = [
+        [0, "Analizando tu CV…"],
+        [3500, "Corrigiendo errores…"],
+        [7000, "Analizando el puesto de trabajo…"],
+        [11000, "Comparando tu experiencia con los requisitos…"],
+        [15000, "Buscando las palabras clave que te faltan…"],
+        [19000, "Verificando compatibilidad con sistemas ATS…"],
+        [23000, "Calculando el porcentaje de coincidencia…"],
+        [27000, "Preparando tus sugerencias…"],
+        [32000, "Últimos detalles…"]
+    ];
+    let timersMsg = [];
+
+    function detenerMensajes() {
+        timersMsg.forEach(clearTimeout);
+        timersMsg = [];
+    }
+
+    function cambiarMensaje(txt) {
+        tituloOverlay.classList.add("cambia");
+        timersMsg.push(setTimeout(() => {
+            tituloOverlay.textContent = txt;
+            tituloOverlay.classList.remove("cambia");
+        }, 250));
+    }
+
+    function iniciarMensajes() {
+        detenerMensajes();
+        tituloOverlay.classList.remove("cambia");
+        tituloOverlay.textContent = MENSAJES[0][1];
+        MENSAJES.slice(1).forEach(([ms, txt]) => timersMsg.push(setTimeout(() => cambiarMensaje(txt), ms)));
+    }
 
     const VALIDO = /\.(pdf|docx?|txt|jpe?g|png)$/i;
     const MAX = 10 * 1024 * 1024;
@@ -88,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
         datos.delete(modo === "texto" ? "requisitos" : "requisitos_texto");
 
         overlay.hidden = false;
+        iniciarMensajes();
         const minimo = new Promise(r => setTimeout(r, 2400));
         try {
             const [r] = await Promise.all([fetch(form.action, { method: "POST", body: datos }), minimo]);
@@ -99,6 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const html = await r.text();
             document.open(); document.write(html); document.close();
         } catch (ex) {
+            detenerMensajes();
             overlay.hidden = true;
             if (ex instanceof TypeError) {
                 toast.error("Sin conexión con el servidor", "Revisá tu conexión y probá de nuevo.");

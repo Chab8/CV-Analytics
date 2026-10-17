@@ -853,7 +853,12 @@ mark:nth-of-type(4) {
 }
 
 .overlay h2 {
-    font-size: 1.5rem
+    font-size: 1.5rem;
+    transition: opacity .25s
+}
+
+.overlay h2.cambia {
+    opacity: 0
 }
 
 .scanner {

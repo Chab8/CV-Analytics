@@ -327,22 +327,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const ajustarPreview = () => ajustar(previewWrap, frame);
 
     /* ---------------- Construir payload limpio para el render ---------------- */
-    function construirPayload() {
-        // "En curso" en educación se convierte a actual=true
-        const educacionLimpia = (estado.educacion || []).map(e => {
+    function normalizarEnCurso(lista) {
+        return (lista || []).map(e => {
             const copia = { ...e };
-            if (copia.hasta && copia.hasta.trim().toLowerCase() === "en curso") {
+            if ((copia.hasta || "").trim().toLowerCase() === "en curso") {
                 copia.actual = true;
                 copia.hasta = "";
             }
             return copia;
         });
+    }
 
+    function construirPayload() {
         return {
             plantilla: estado.plantilla,
             datos: {
                 ...estado,
-                educacion: educacionLimpia,
+                experiencia: normalizarEnCurso(estado.experiencia),
+                educacion: normalizarEnCurso(estado.educacion),
                 seccion_extra: { nombre: estado.extra.nombre, entradas: estado.entradas }
             }
         };
@@ -488,9 +490,13 @@ document.addEventListener("DOMContentLoaded", () => {
         descargar(b.dataset.formato);
     });
 
-    function nombreArchivo(ext) {
+    function nombreBase() {
         const n = (estado.personal.nombre || "").replace(/[\\/:*?"<>|]+/g, "").trim();
-        return `CV${n ? " - " + n : ""}.${ext}`;
+        return `${n ? n + " " : ""}CV Analytics`;
+    }
+
+    function nombreArchivo(ext) {
+        return `${nombreBase()}.${ext}`;
     }
 
     function guardarBlob(blob, ext) {
@@ -520,6 +526,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function descargar(formato) {
         if (formato === "pdf") {
+            // El navegador propone como nombre del PDF el título del documento
+            const docFrame = frame.contentDocument;
+            const tituloPagina = document.title;
+            const tituloFrame = docFrame.title;
+            const restaurar = () => { document.title = tituloPagina; docFrame.title = tituloFrame; };
+            document.title = docFrame.title = nombreBase();
+            frame.contentWindow.addEventListener("afterprint", restaurar, { once: true });
+            window.addEventListener("afterprint", restaurar, { once: true });
+
             frame.contentWindow.focus();
             frame.contentWindow.print();
             toast.info("Elegí «Guardar como PDF»", "En la ventana de impresión, cambiá el destino a PDF.");
