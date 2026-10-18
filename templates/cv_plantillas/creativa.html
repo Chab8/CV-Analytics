@@ -1,0 +1,280 @@
+{% from "cv_plantillas/_macros.html" import periodo %}
+{% set p = cv.personal %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CV - {{ p.nombre or "Currículum" }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --base: #0B4B64;
+            --acento: #f2a65a;
+        }
+
+        body {
+            background: #e9ecef;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #22343a;
+            font-size: 10pt;
+            line-height: 1.45;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .hoja {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: #fff;
+            padding: 12mm;
+        }
+
+        header {
+            margin-bottom: 7mm;
+        }
+
+        h1 {
+            font-size: 26pt;
+            line-height: 1.1;
+            color: var(--base);
+        }
+
+        h1::after {
+            content: "";
+            display: block;
+            width: 18mm;
+            height: 1.4mm;
+            margin-top: 2.5mm;
+            background: var(--acento);
+            border-radius: 1mm;
+        }
+
+        .titulo {
+            margin-top: 2.5mm;
+            font-size: 12pt;
+            color: #5b6b73;
+        }
+
+        .cols {
+            display: grid;
+            grid-template-columns: 60mm 1fr;
+            gap: 8mm;
+            align-items: stretch;
+        }
+
+        aside {
+            background: var(--base);
+            color: #eaf2f6;
+            border-radius: 3mm;
+            padding: 6mm 5mm;
+        }
+
+        aside h2 {
+            margin: 0 0 2.5mm;
+            padding-bottom: 1.2mm;
+            border-bottom: 1px solid rgba(255, 255, 255, .25);
+            font-size: 9.5pt;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--acento);
+        }
+
+        aside h2:not(:first-child) {
+            margin-top: 6mm;
+        }
+
+        aside .dato {
+            display: block;
+            word-break: break-word;
+            margin-bottom: 1.8mm;
+            font-size: 9pt;
+        }
+
+        aside .punto {
+            position: relative;
+            padding-left: 4mm;
+            margin-bottom: 1.5mm;
+            font-size: 9.5pt;
+        }
+
+        aside .punto::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 1.9mm;
+            width: 1.6mm;
+            height: 1.6mm;
+            border-radius: 50%;
+            background: var(--acento);
+        }
+
+        aside .idioma {
+            display: flex;
+            justify-content: space-between;
+            gap: 3mm;
+            margin-bottom: 1.2mm;
+            font-size: 9.5pt;
+        }
+
+        aside .idioma span {
+            color: #b9d0db;
+        }
+
+        main h2 {
+            margin: 6mm 0 3mm;
+            font-size: 11pt;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--base);
+        }
+
+        main h2:first-child {
+            margin-top: 0;
+        }
+
+        /* Línea de tiempo: se aplica a todos los .item, incluida la sección libre */
+        main .item {
+            position: relative;
+            margin-bottom: 4mm;
+            padding-left: 5mm;
+            border-left: 2px solid #d3dde3;
+            break-inside: avoid;
+        }
+
+        main .item::before {
+            content: "";
+            position: absolute;
+            left: -1.7mm;
+            top: 1.6mm;
+            width: 3mm;
+            height: 3mm;
+            border-radius: 50%;
+            background: var(--acento);
+            border: .6mm solid #fff;
+        }
+
+        .fila {
+            display: flex;
+            justify-content: space-between;
+            gap: 6mm;
+        }
+
+        .fila strong {
+            font-size: 11pt;
+            color: #111e24;
+        }
+
+        .fecha {
+            white-space: nowrap;
+            font-size: 9pt;
+            color: #5b6b73;
+        }
+
+        .sub {
+            font-size: 9.5pt;
+            color: var(--base);
+            font-weight: 600;
+        }
+
+        .desc {
+            white-space: pre-line;
+            margin-top: 1mm;
+        }
+
+        @media print {
+            body {
+                background: none;
+            }
+
+            .hoja {
+                width: auto;
+                min-height: 0;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hoja">
+        <header>
+            <h1>{{ p.nombre }}</h1>
+            {% if p.titulo %}<div class="titulo">{{ p.titulo }}</div>{% endif %}
+        </header>
+
+        <div class="cols">
+            <aside>
+                <h2>Contacto</h2>
+                {% for dato in [p.email, p.telefono, p.ubicacion, p.linkedin, p.web] if dato %}<span class="dato">{{
+                    dato }}</span>{% endfor %}
+
+                {% if cv.habilidades %}
+                <h2>Habilidades</h2>
+                {% for h in cv.habilidades %}<div class="punto">{{ h }}</div>{% endfor %}
+                {% endif %}
+
+                {% if cv.idiomas %}
+                <h2>Idiomas</h2>
+                {% for i in cv.idiomas %}<div class="idioma"><strong>{{ i.idioma }}</strong><span>{{ i.nivel }}</span>
+                </div>{% endfor %}
+                {% endif %}
+            </aside>
+
+            <main>
+                {% if p.resumen %}
+                <h2>Perfil</h2>
+                <p class="desc">{{ p.resumen }}</p>
+                {% endif %}
+
+                {% if cv.experiencia %}
+                <h2>Experiencia</h2>
+                {% for e in cv.experiencia %}
+                <div class="item">
+                    <div class="fila"><strong>{{ e.puesto }}</strong><span class="fecha">{{ periodo(e) }}</span></div>
+                    {% if e.empresa %}<div class="sub">{{ e.empresa }}</div>{% endif %}
+                    {% if e.descripcion %}<p class="desc">{{ e.descripcion }}</p>{% endif %}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if cv.educacion %}
+                <h2>Educación</h2>
+                {% for e in cv.educacion %}
+                <div class="item">
+                    <div class="fila"><strong>{{ e.titulo }}</strong><span class="fecha">{{ periodo(e) }}</span></div>
+                    {% if e.institucion %}<div class="sub">{{ e.institucion }}</div>{% endif %}
+                    {% if e.descripcion %}<p class="desc">{{ e.descripcion }}</p>{% endif %}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if cv.extras %}
+                <h2>Cursos y certificaciones</h2>
+                {% for x in cv.extras %}
+                <div class="item">
+                    <div class="fila"><strong>{{ x.titulo }}</strong><span class="fecha">{{ x.anio }}</span></div>
+                    {% if x.institucion %}<div class="sub">{{ x.institucion }}</div>{% endif %}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% include "cv_plantillas/_extra.html" %}
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>

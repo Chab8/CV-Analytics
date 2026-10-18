@@ -119,7 +119,6 @@ def renderizar():
 @crear_cv_bp.route("/exportar/<formato>", methods=["POST"])
 def exportar(formato):
     """Genera el CV en .docx o .txt a partir de los datos del asistente."""
-    download_name=f"{limpio} CV Analytics.{formato}",
     if formato not in FORMATOS_EXPORTABLES:
         return jsonify(error="Ese formato no está disponible."), 400
     payload = request.get_json(silent=True) or {}

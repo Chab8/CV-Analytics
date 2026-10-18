@@ -1,0 +1,225 @@
+{% from "cv_plantillas/_macros.html" import periodo, contactos %}
+{% set p = cv.personal %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CV - {{ p.nombre or "Currículum" }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --navy: #1d2b3a;
+            --oro: #b8912f;
+        }
+
+        body {
+            background: #e9ecef;
+            font-family: Cambria, Georgia, serif;
+            color: #1c232a;
+            font-size: 10.5pt;
+            line-height: 1.45;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .hoja {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: #fff;
+            padding: 12mm;
+        }
+
+        header {
+            background: var(--navy);
+            color: #fff;
+            border-bottom: 1.5mm solid var(--oro);
+            border-radius: 2mm;
+            padding: 8mm 9mm 7mm;
+            margin-bottom: 7mm;
+        }
+
+        h1 {
+            font-size: 26pt;
+            font-weight: 700;
+            letter-spacing: .5px;
+            line-height: 1.1;
+        }
+
+        .titulo {
+            margin-top: 1.5mm;
+            font-size: 12pt;
+            font-style: italic;
+            color: #e3c76f;
+        }
+
+        .contacto {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1mm 5mm;
+            margin-top: 4mm;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 9pt;
+            color: #d6dde4;
+        }
+
+        h2 {
+            margin: 6mm 0 3mm;
+            padding-left: 3mm;
+            border-left: 1.2mm solid var(--oro);
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 10.5pt;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--navy);
+        }
+
+        .item {
+            margin-bottom: 4mm;
+            break-inside: avoid;
+        }
+
+        .fila {
+            display: flex;
+            justify-content: space-between;
+            gap: 8mm;
+        }
+
+        .fila strong {
+            font-size: 11pt;
+            color: var(--navy);
+        }
+
+        .fecha {
+            white-space: nowrap;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 9pt;
+            color: #6b5a22;
+            font-weight: 600;
+        }
+
+        .sub {
+            font-style: italic;
+            color: #3c4852;
+        }
+
+        .desc {
+            white-space: pre-line;
+            margin-top: 1mm;
+        }
+
+        .dos-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 10mm;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5mm 2mm;
+        }
+
+        .tags span {
+            padding: .6mm 3mm;
+            border: 1px solid #c9cfd6;
+            border-radius: 1.5mm;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 9pt;
+        }
+
+        @media print {
+            body {
+                background: none;
+            }
+
+            .hoja {
+                width: auto;
+                min-height: 0;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hoja">
+        <header>
+            <h1>{{ p.nombre }}</h1>
+            {% if p.titulo %}<div class="titulo">{{ p.titulo }}</div>{% endif %}
+            <div class="contacto">{{ contactos(p) }}</div>
+        </header>
+
+        {% if p.resumen %}
+        <h2>Perfil ejecutivo</h2>
+        <p class="desc">{{ p.resumen }}</p>
+        {% endif %}
+
+        {% if cv.experiencia %}
+        <h2>Trayectoria profesional</h2>
+        {% for e in cv.experiencia %}
+        <div class="item">
+            <div class="fila"><strong>{{ e.puesto }}</strong><span class="fecha">{{ periodo(e) }}</span></div>
+            {% if e.empresa %}<div class="sub">{{ e.empresa }}</div>{% endif %}
+            {% if e.descripcion %}<p class="desc">{{ e.descripcion }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if cv.educacion %}
+        <h2>Formación académica</h2>
+        {% for e in cv.educacion %}
+        <div class="item">
+            <div class="fila"><strong>{{ e.titulo }}</strong><span class="fecha">{{ periodo(e) }}</span></div>
+            {% if e.institucion %}<div class="sub">{{ e.institucion }}</div>{% endif %}
+            {% if e.descripcion %}<p class="desc">{{ e.descripcion }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if cv.habilidades or cv.idiomas %}
+        <div class="dos-col">
+            <div>
+                {% if cv.habilidades %}
+                <h2>Competencias</h2>
+                <div class="tags">{% for h in cv.habilidades %}<span>{{ h }}</span>{% endfor %}</div>
+                {% endif %}
+            </div>
+            <div>
+                {% if cv.idiomas %}
+                <h2>Idiomas</h2>
+                <div class="tags">{% for i in cv.idiomas %}<span>{{ i.idioma }}{% if i.nivel %} — {{ i.nivel }}{% endif
+                        %}</span>{% endfor %}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if cv.extras %}
+        <h2>Cursos y certificaciones</h2>
+        {% for x in cv.extras %}
+        <div class="item">
+            <div class="fila"><strong>{{ x.titulo }}</strong><span class="fecha">{{ x.anio }}</span></div>
+            {% if x.institucion %}<div class="sub">{{ x.institucion }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% include "cv_plantillas/_extra.html" %}
+    </div>
+</body>
+
+</html>

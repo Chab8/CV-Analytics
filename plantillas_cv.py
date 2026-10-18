@@ -21,6 +21,24 @@ PLANTILLAS = [
         "descripcion": "Dos columnas con barra lateral para habilidades e idiomas.",
         "archivo": "cv_plantillas/moderna.html",
     },
+        {
+        "id": "minimalista",
+        "nombre": "Minimalista",
+        "descripcion": "Mucho aire, tipografía liviana y una sola columna. Ideal para ATS.",
+        "archivo": "cv_plantillas/minimalista.html",
+    },
+    {
+        "id": "ejecutiva",
+        "nombre": "Ejecutiva",
+        "descripcion": "Encabezado azul oscuro con detalles dorados. Para perfiles senior.",
+        "archivo": "cv_plantillas/ejecutiva.html",
+    },
+    {
+        "id": "creativa",
+        "nombre": "Creativa",
+        "descripcion": "Barra lateral de color y línea de tiempo en la experiencia.",
+        "archivo": "cv_plantillas/creativa.html",
+    },
 ]
 
 
