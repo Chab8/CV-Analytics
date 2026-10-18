@@ -65,11 +65,39 @@
 
 <div class="overlay" id="overlay" role="status" aria-live="polite" hidden>
     <div class="overlay-in">
-        <div class="scanner">
-            <div class="sheet"><i></i><i></i><i></i><i></i><i></i></div>
-            <b class="beam"></b>
+        <div class="scanner" aria-hidden="true">
+            <div class="scan-frame"></div>
+
+            {# Dos capas idénticas: la apagada y la encendida que el haz va revelando #}
+            <div class="scan-doc scan-base">
+                <div class="d-head"><b class="d-avatar"></b><span class="d-who"><i class="d-name"></i><i
+                            class="d-role"></i></span></div>
+                <i class="d-line d-90"></i><i class="d-line d-70"></i>
+                <i class="d-title"></i>
+                <i class="d-line d-80"></i><i class="d-line d-90"></i><i class="d-line d-50"></i>
+                <i class="d-title"></i>
+                <div class="d-chips"><em></em><em></em><em></em></div>
+            </div>
+            <div class="scan-doc scan-lit">
+                <div class="d-head"><b class="d-avatar"></b><span class="d-who"><i class="d-name"></i><i
+                            class="d-role"></i></span></div>
+                <i class="d-line d-90"></i><i class="d-line d-70"></i>
+                <i class="d-title"></i>
+                <i class="d-line d-80"></i><i class="d-line d-90"></i><i class="d-line d-50"></i>
+                <i class="d-title"></i>
+                <div class="d-chips"><em></em><em></em><em></em></div>
+            </div>
+
+            <div class="scan-beam"></div>
+            <span class="scan-check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
+            </span>
         </div>
         <h2 id="overlay-msg">Analizando tu CV…</h2>
+        <p class="overlay-hint">Puede tardar hasta 30 segundos. No cierres esta página.</p>
     </div>
 </div>
 {% endblock %}
