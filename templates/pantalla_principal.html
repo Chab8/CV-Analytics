@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block title %}CV Analytics · Tu CV a la medida de cada oferta{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ats.css') }}">{% endblock %}
 
 {% block content %}
 <main>
@@ -51,6 +53,156 @@
         </ol>
     </section>
 
+    <section class="wrap block ats" id="ats" aria-labelledby="ats-titulo">
+        <div class="ats-intro">
+            <h2 id="ats-titulo">Antes de que lo lea una persona, lo lee un filtro ATS</h2>
+            <p class="ats-lead"><strong>ATS</strong> significa <em>Applicant Tracking System</em>: el sistema de
+                seguimiento de candidatos que usan las empresas para recibir postulaciones, ordenarlas y quedarse con
+                las que mejor encajan con el puesto.</p>
+            <p class="ats-lead">Según cómo lo configure la empresa, un CV que coincide poco con la oferta se descarta de
+                forma automática o queda tan abajo en el ranking que ninguna persona llega a verlo.</p>
+        </div>
+
+        <p class="sr-only">Animación: arriba, un CV sin optimizar entra al filtro ATS, coincide con pocas palabras clave
+            y termina en una trituradora. Abajo, un CV revisado con CV Analytics pasa el filtro y llega a la bandeja del
+            reclutador.</p>
+
+        <div class="ats-stage" aria-hidden="true">
+            <!-- Cinta A: CV sin optimizar -->
+            <article class="ats-lane ats-a">
+                <header class="lane-head">
+                    <h3>Currículum sin optimizar</h3>
+                    <div class="chips">
+                        <span class="chips-cap">La oferta pide</span>
+                        <span class="chip c1"><span class="ico"><i class="ic-pend">•</i><i class="ic-ok">✓</i><i
+                                    class="ic-no">✕</i></span>Python</span>
+                        <span class="chip c2"><span class="ico"><i class="ic-pend">•</i><i class="ic-ok">✓</i><i
+                                    class="ic-no">✕</i></span>SQL</span>
+                        <span class="chip c3"><span class="ico"><i class="ic-pend">•</i><i class="ic-ok">✓</i><i
+                                    class="ic-no">✕</i></span>Power BI</span>
+                    </div>
+                </header>
+
+                <div class="escena">
+                    <div class="belt"></div>
+                    <div class="gate ghost at1"><span class="lintel"></span></div>
+                    <div class="gate gate-ats at2"><span class="lintel"></span><b class="beam"></b></div>
+                    <div class="veredicto at2">33%: descartado</div>
+                    <div class="cv"><i></i><i></i><i class="k k1"></i><i></i><i class="k k2"></i><i></i></div>
+                    <div class="caja shred at3"><span class="dientes"></span><span class="led"></span></div>
+                    <div class="tiras at3">
+                        <i style="--n:0;--r:-9"></i><i style="--n:1;--r:6"></i><i style="--n:2;--r:-4"></i><i
+                            style="--n:3;--r:11"></i><i style="--n:4;--r:-12"></i><i style="--n:5;--r:5"></i><i
+                            style="--n:6;--r:-7"></i>
+                    </div>
+                </div>
+
+                <div class="rotulos">
+                    <span class="at1">Sin revisión</span><span class="at2">Filtro ATS</span><span
+                        class="at3">Trituradora</span>
+                </div>
+
+                <div class="estado">
+                    <p>El CV entra a la cola de postulaciones tal como está.</p>
+                    <p>Los filtros extraen el texto y lo compara con las palabras clave de la oferta.</p>
+                    <p>Coincide poco: el sistema lo descarta de forma automática.</p>
+                    <p>Ninguna persona llegó a abrirlo.</p>
+                </div>
+            </article>
+
+            <!-- Cinta B: CV optimizado con CV Analytics -->
+            <article class="ats-lane ats-b">
+                <header class="lane-head">
+                    <h3>Currículum optimizado con CV Analytics</h3>
+                    <div class="chips">
+                        <span class="chips-cap">La oferta pide</span>
+                        <span class="chip c1"><span class="ico"><i class="ic-pend">•</i><i class="ic-ok">✓</i><i
+                                    class="ic-no">✕</i></span>Python</span>
+                        <span class="chip c2"><span class="ico"><i class="ic-pend">•</i><i class="ic-ok">✓</i><i
+                                    class="ic-no">✕</i></span>SQL</span>
+                        <span class="chip c3"><span class="ico"><i class="ic-pend">•</i><i class="ic-ok">✓</i><i
+                                    class="ic-no">✕</i></span>Power BI</span>
+                    </div>
+                </header>
+
+                <div class="escena">
+                    <div class="belt"></div>
+                    <div class="gate gate-cva at1"><span class="lintel"></span><b class="beam"></b></div>
+                    <div class="veredicto cva at1">Ajustes aplicados</div>
+                    <div class="gate gate-ats at2"><span class="lintel"></span><b class="beam"></b></div>
+                    <div class="veredicto at2">92%: pasa el filtro</div>
+                    <div class="cv"><i></i><i></i><i class="k k1"></i><i></i><i class="k k2"></i><i></i></div>
+                    <div class="caja inbox at3"><span class="sobre"></span></div>
+                    <div class="tick at3">✓</div>
+                </div>
+
+                <div class="rotulos">
+                    <span class="at1">CV Analytics</span><span class="at2">Filtro ATS</span><span
+                        class="at3">Reclutador</span>
+                </div>
+
+                <div class="estado">
+                    <p>Antes de postularte, tu currículum pasa por CV Analytics.</p>
+                    <p>CV Analytics marca qué palabras clave y datos ajustar.</p>
+                    <p>Con los ajustes, los filtros ATS leen tu CV completo y encuentra lo que busca.</p>
+                    <p>Alta coincidencia: llega a la bandeja del reclutador.</p>
+                </div>
+            </article>
+        </div>
+
+        <div class="ats-info">
+            <div>
+                <h3>Cómo analiza tu CV un ATS</h3>
+                <ol class="ats-pasos">
+                    <li>
+                        <b>Lee el archivo</b>
+                        <p>Extrae el texto del CV y lo ordena en campos: datos de contacto, puestos, fechas, estudios y
+                            habilidades. Si el archivo tiene columnas, tablas o texto dentro de imágenes, parte de esa
+                            información puede perderse en el camino.</p>
+                    </li>
+                    <li>
+                        <b>Busca las palabras clave de la oferta</b>
+                        <p>Cruza tu CV con el aviso: herramientas, títulos, certificaciones, idiomas y años de
+                            experiencia. Compara texto, así que importa escribir cada término como lo pide el puesto.
+                        </p>
+                    </li>
+                    <li>
+                        <b>Puntúa y ordena a los candidatos</b>
+                        <p>Cada postulación recibe un puntaje de coincidencia. La empresa puede definir requisitos
+                            excluyentes o un puntaje mínimo, y el sistema descarta lo que no los cumple.</p>
+                    </li>
+                    <li>
+                        <b>Muestra primero a los mejor puntuados</b>
+                        <p>El reclutador revisa el tope del ranking. Los CV que quedaron más abajo, o que fueron
+                            descartados, muchas veces nunca llegan a abrirse.</p>
+                    </li>
+                </ol>
+            </div>
+
+            <div>
+                <h3>Por qué descarta un CV</h3>
+                <ul class="ats-causas">
+                    <li><b>Faltan palabras clave</b><span>Tenés la experiencia, pero la escribiste con otras palabras
+                            que las de la oferta.</span></li>
+                    <li><b>Formato difícil de leer</b><span>Columnas, tablas, íconos o texto dentro de imágenes que el
+                            sistema no logra extraer.</span></li>
+                    <li><b>Títulos de sección poco comunes</b><span>«Mi recorrido» en lugar de «Experiencia laboral»
+                            confunde al sistema cuando ordena los datos.</span></li>
+                    <li><b>Fechas incompletas o inconsistentes</b><span>Períodos sin mes o año, superpuestos o escritos
+                            en distintos formatos.</span></li>
+                    <li><b>No cumple un requisito excluyente</b><span>Idioma, título o años de experiencia que el aviso
+                            marca como obligatorios.</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="ats-cierre">
+            <p>CV Analytics hace ese mismo cruce antes de que postules: compara tu CV con la oferta, te muestra el
+                porcentaje de coincidencia y te dice qué cambiar.</p>
+            <a class="cta cta-primary" href="{{ url_for('subir') }}">Analizar mi CV</a>
+        </div>
+    </section>
+
     <section class="wrap block tools">
         <article class="tool tool-main">
             <h2>Analizá tu CV contra una oferta</h2>
@@ -65,3 +217,6 @@
     </section>
 </main>
 {% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/ats.js') }}"></script>{% endblock %}
