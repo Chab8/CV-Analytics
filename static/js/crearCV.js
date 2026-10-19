@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const vacio = () => ({
         plantilla: radios[0] ? radios[0].value : null,
         paso: 0, max: 0,
+        historialId: null,
         personal: { nombre: "", titulo: "", email: "", telefono: "", ubicacion: "", linkedin: "", web: "", resumen: "" },
         extra: { nombre: "" },
         experiencia: [], educacion: [], habilidades: [], idiomas: [], extras: [], entradas: []
@@ -328,7 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
         radios.forEach(r => { r.checked = r.value === id; });
         selectPlantilla.value = id;
         guardar();
-        if (regenerar) generarVistaPrevia();
+        if (regenerar) { generarVistaPrevia(); guardarEnHistorial(); }
     }
     radios.forEach(r => r.addEventListener("change", () => fijarPlantilla(r.value, false)));
     selectPlantilla.addEventListener("change", () => fijarPlantilla(selectPlantilla.value, true));
@@ -377,6 +378,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 seccion_extra: { nombre: estado.extra.nombre, entradas: estado.entradas }
             }
         };
+    }
+
+    /* ---------------- Historial ---------------- */
+    function guardarEnHistorial() {
+        if (!window.historial || estado.paso !== ULTIMO || !hayDatos()) return;
+        if (!estado.historialId) estado.historialId = historial.nuevoId();
+        const opcion = selectPlantilla.selectedOptions[0];
+        historial.guardar({
+            id: estado.historialId,
+            tipo: "cv",
+            nombre: estado.personal.nombre,
+            titulo: estado.personal.titulo,
+            plantilla: estado.plantilla,
+            plantillaNombre: opcion ? opcion.textContent : "",
+            payload: construirPayload(),           // lo que espera /crear/render para la vista previa
+            borrador: { ...estado, paso: ULTIMO, max: ULTIMO } // para reabrirlo en el asistente
+        });
+        guardar(); // persiste historialId en el borrador
     }
 
     const cabeceras = { "Content-Type": "application/json" };
@@ -697,7 +716,7 @@ document.addEventListener("DOMContentLoaded", () => {
         guardar();
         aplicarVista();
         escalarMiniaturas();
-        if (estado.paso === ULTIMO) generarVistaPrevia();
+        if (estado.paso === ULTIMO) { generarVistaPrevia(); guardarEnHistorial(); }
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 

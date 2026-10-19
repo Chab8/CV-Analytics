@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Historial · CV Analytics{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/historial.css') }}">{% endblock %}
+
+{% block content %}
+<main class="wrap tool-page historial" id="historial" data-crear-url="{{ url_for('crear_cv.wizard') }}"
+    data-render-url="{{ url_for('crear_cv.renderizar') }}" data-analizar-url="{{ url_for('subir') }}">
+    <div class="tool-head">
+        <h1>Historial</h1>
+        <p>Tus comparaciones y los CV que armaste. Se guarda en este navegador: si borrás los datos del navegador, se
+            pierde.</p>
+    </div>
+
+    <div class="hist-barra">
+        <div class="hist-filtros" role="group" aria-label="Filtrar historial">
+            <button type="button" class="hist-filtro" data-filtro="todo" aria-pressed="true">Todo</button>
+            <button type="button" class="hist-filtro" data-filtro="comparacion"
+                aria-pressed="false">Comparaciones</button>
+            <button type="button" class="hist-filtro" data-filtro="cv" aria-pressed="false">CVs creados</button>
+        </div>
+        <button type="button" class="link" id="hist-vaciar" hidden>Vaciar historial</button>
+    </div>
+
+    <ul class="hist-lista" id="hist-lista"></ul>
+
+    <div class="hist-vacio" id="hist-vacio" hidden>
+        <p id="hist-vacio-txt">Todavía no hay nada acá.</p>
+        <div class="actions">
+            <a class="cta cta-primary" href="{{ url_for('subir') }}">Analizar mi CV</a>
+            <a class="cta cta-ghost" href="{{ url_for('crear_cv.wizard') }}">Crear un CV</a>
+        </div>
+    </div>
+</main>
+
+<dialog class="hist-modal" id="hist-modal" aria-label="Vista previa del CV">
+    <div class="hist-modal-head">
+        <strong id="hist-modal-titulo">Vista previa</strong>
+        <button type="button" class="modo-oscuro-btn" id="hist-modal-cerrar" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" aria-hidden="true" style="display:block">
+                <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+        </button>
+    </div>
+    <div class="hist-modal-scroll">
+        <div class="hist-hoja" id="hist-hoja"><iframe id="hist-frame" title="Vista previa del CV"
+                tabindex="-1"></iframe>
+        </div>
+    </div>
+</dialog>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/historialPagina.js') }}"></script>{% endblock %}

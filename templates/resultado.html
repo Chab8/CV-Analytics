@@ -3,6 +3,7 @@
 {% block body_class %}page-result{% endblock %}
 {% block content %}
 {% set s = (similitud | string | replace('%', '')) | int %}
+<script type="application/json" id="datos-historial">{{ datos_historial | tojson }}</script>
 <main class="wrap result" data-puntaje="{{ s }}"
     data-sugerencias-error="{{ 1 if (sugerencias and sugerencias.startswith('⚠')) else 0 }}">
     <aside class="score-card">
@@ -24,6 +25,7 @@
         <div class="next">
             <a class="cta cta-primary" href="{{ url_for('crear_cv.wizard') }}">Crear mi CV mejorado</a>
             <a class="cta cta-ghost" href="{{ url_for('subir') }}">Analizar otra oferta</a>
+            <a class="cta cta-ghost" href="{{ url_for('historial') }}">Ver historial</a>
         </div>
     </aside>
 
@@ -52,4 +54,5 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/progreso.js') }}"></script>
-<script src="{{ url_for('static', filename='js/avisosResultado.js') }}"></script>{% endblock %}
+<script src="{{ url_for('static', filename='js/avisosResultado.js') }}"></script>
+<script src="{{ url_for('static', filename='js/historialResultado.js') }}"></script>{% endblock %}

@@ -113,6 +113,26 @@ document.addEventListener("DOMContentLoaded", () => {
         pintar();
     });
 
+    // Guarda la comparación en el historial antes de reemplazar la página con el resultado
+    function guardarComparacion(html) {
+        try {
+            const doc = new DOMParser().parseFromString(html, "text/html"); // no ejecuta scripts
+            const nodo = doc.getElementById("datos-historial");
+            if (!nodo || !window.historial) return;
+            const d = JSON.parse(nodo.textContent);
+            if (!d || !(d.puntaje > 0)) return;
+            historial.guardar({
+                id: d.id || historial.nuevoId(),
+                tipo: "comparacion",
+                cv: d.cv,
+                oferta: d.oferta,
+                puntaje: d.puntaje,
+                feedback: d.feedback,
+                sugerencias: d.sugerencias
+            });
+        } catch (_) { /* el historial nunca debe impedir mostrar el resultado */ }
+    }
+
     form.addEventListener("submit", async e => {
         e.preventDefault();
         if (boton.disabled) return;
@@ -132,6 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error(msg);
             }
             const html = await r.text();
+            guardarComparacion(html);
             document.open(); document.write(html); document.close();
         } catch (ex) {
             detenerMensajes();

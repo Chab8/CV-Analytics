@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, render_template
 import os
 import uuid
 import json
+import re
 
 import LectorDeTextos
 from ComparadorDeTexto import comparar_textos
@@ -277,6 +278,15 @@ Si no hay hallazgos verificables, respondé:
             "temporal del servicio. Probá de nuevo en unos minutos."
         )
 
+def sugerencias_a_lista(texto):
+    """Convierte '1. ...\n\n2. ...' en una lista. Vacía si hubo error o no hay hallazgos."""
+    if not texto or texto.startswith("⚠"):
+        return []
+    return [
+        re.sub(r"^\d+\.\s+", "", linea.strip())
+        for linea in texto.split("\n")
+        if re.match(r"^\s*\d+\.\s", linea)
+    ]
 
 # --- RUTAS DE LA APLICACIÓN ---
 
@@ -290,6 +300,9 @@ def index():
 def subir():
     return render_template("index.html")
 
+@app.route("/historial")
+def historial():
+    return render_template("historial.html")
 
 @app.route("/comparar", methods=["POST"])
 def comparar():
@@ -377,11 +390,21 @@ def comparar():
             "identificados. La puntuación no garantiza superar todos los ATS."
         )
 
+    datos_historial = {
+        "id": uuid.uuid4().hex,
+        "puntaje": porcentaje,
+        "feedback": feedback,
+        "sugerencias": sugerencias_a_lista(sugerencias),
+        "cv": (cv_file.filename or "Tu CV")[:120],
+        "oferta": ("Texto pegado" if texto_oferta else (req_file.filename or "Oferta"))[:120],
+    }
+
     return render_template(
         "resultado.html",
         similitud=f"{porcentaje}",
         feedback=feedback,
         sugerencias=sugerencias,
+        datos_historial=datos_historial,
     )
 
 

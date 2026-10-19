@@ -14,7 +14,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mejoras.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/animaciones.css') }}">
     <script defer src="{{ url_for('static', filename='js/toast.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/historial.js') }}"></script>
     <script defer src="{{ url_for('static', filename='js/modoOscuro.js') }}"></script>
+
     {% block head %}{% endblock %}
 </head>
 
@@ -33,6 +35,8 @@
                 CV</a>
             <a href="{{ url_for('crear_cv.wizard') }}" {% if request.endpoint=='crear_cv.wizard' %} aria-current="page"
                 {% endif %}>Crear CV</a>
+            <a href="{{ url_for('historial') }}" {% if request.endpoint=='historial' %} aria-current="page" {% endif
+                %}>Historial</a>
             <a href="{{ url_for('index') }}#como">Cómo funciona</a>
             <button class="modo-oscuro-btn" type="button" aria-label="Cambiar entre modo claro y oscuro">
                 <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
