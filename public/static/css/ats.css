@@ -1,0 +1,1521 @@
+/* Sección "Qué es un filtro ATS" de la pantalla principal. Usa los tokens de app.css.
+   La escena es una máquina con dos cintas: arriba un CV sin optimizar que el ATS descarta,
+   abajo un CV revisado con CV Analytics que pasa. Un ciclo dura 12 s y las dos cintas corren sincronizadas. */
+
+.ats {
+    scroll-margin-top: 80px
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0
+}
+
+/* ---------- Introducción ---------- */
+.ats-intro {
+    margin-bottom: clamp(28px, 5vw, 48px)
+}
+
+.ats-intro h2 {
+    max-width: 28ch;
+    margin-bottom: 22px;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem)
+}
+
+.ats-lead {
+    max-width: 66ch;
+    color: var(--muted);
+    font-size: 1.15rem
+}
+
+.ats-lead+.ats-lead {
+    margin-top: 14px
+}
+
+.ats-lead strong {
+    color: var(--ink);
+    font-weight: 600
+}
+
+/* ---------- Escenario ---------- */
+.ats-stage {
+    --stage: #2C3E50;
+    --paper: #fff;
+    --steel: #C3CAD9;
+    --cream: #F9FAF6;
+    --ats: #38b6ff;
+    --cva: #27AE60;
+    --good: #4cc38a;
+    --bad: #f0847b;
+    --belt: #3a5068;
+    --pc: rgba(249, 250, 246, .78);
+    --pb: rgba(195, 202, 217, .4);
+    --sep: rgba(195, 202, 217, .16);
+    --gap: clamp(28px, 4vw, 56px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    padding: clamp(20px, 3.2vw, 40px);
+    color: var(--cream);
+    background: var(--stage);
+    border-radius: 24px;
+    box-shadow: var(--shadow)
+}
+
+body.dark-mode .ats-stage {
+    --stage: #1b2836;
+    border: 1px solid var(--line)
+}
+
+.ats-lane {
+    container-type: inline-size;
+    min-width: 0
+}
+
+.ats-lane+.ats-lane {
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid var(--sep)
+}
+
+@media (min-width: 980px) {
+    .ats-stage {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: var(--gap)
+    }
+
+    .ats-lane+.ats-lane {
+        position: relative;
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0
+    }
+
+    .ats-lane+.ats-lane::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: calc(var(--gap) / -2);
+        border-left: 1px solid var(--sep)
+    }
+}
+
+/* Cabecera de cada cinta */
+.lane-head {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 10px
+}
+
+.lane-head h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.15rem;
+    letter-spacing: -.015em
+}
+
+.lane-head h3::before {
+    content: "";
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bad)
+}
+
+.ats-b .lane-head h3::before {
+    background: var(--good)
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 30px
+}
+
+.chips-cap {
+    margin-right: 2px;
+    color: rgba(249, 250, 246, .62);
+    font-size: .85rem
+}
+
+.chip {
+    --d: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px 4px 8px;
+    color: var(--pc);
+    border: 1px solid var(--pb);
+    border-radius: 999px;
+    font-size: .85rem;
+    font-weight: 500;
+    line-height: 1.2
+}
+
+.chip .ico {
+    position: relative;
+    width: 1em;
+    height: 1em
+}
+
+.chip .ico i {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: .9em;
+    font-style: normal;
+    font-weight: 700;
+    opacity: 0
+}
+
+/* Estado final (también es lo que se ve con movimiento reducido) */
+.ats-a .c1,
+.ats-a .c2 {
+    color: var(--bad);
+    border-color: var(--bad);
+    background: color-mix(in srgb, var(--bad) 14%, transparent)
+}
+
+.ats-a .c3,
+.ats-b .chip {
+    color: var(--good);
+    border-color: var(--good);
+    background: color-mix(in srgb, var(--good) 14%, transparent)
+}
+
+.ats-a .c1 .ic-no,
+.ats-a .c2 .ic-no,
+.ats-a .c3 .ic-ok,
+.ats-b .ic-ok {
+    opacity: 1
+}
+
+.ats-a .c2 {
+    --d: .6
+}
+
+.ats-a .c3 {
+    --d: 1.2
+}
+
+.ats-b .c2 {
+    --d: .25
+}
+
+.ats-b .c3 {
+    --d: .5
+}
+
+/* ---------- Escena ---------- */
+.escena {
+    --u: 6px;
+    --y: calc(var(--u) * 16);
+    /* altura de la cinta medida desde el piso */
+    position: relative;
+    height: calc(var(--u) * 36)
+}
+
+@supports (width: 1cqw) {
+    .escena {
+        --u: clamp(5.2px, 1.1cqw, 9px)
+    }
+}
+
+.escena::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-bottom: 2px solid var(--sep)
+}
+
+.at1 {
+    --x: 28cqw
+}
+
+.at2 {
+    --x: 58cqw
+}
+
+.at3 {
+    --x: 88cqw
+}
+
+/* Cinta */
+.belt {
+    position: absolute;
+    left: 0;
+    bottom: calc(var(--y) - var(--u) * 1.6);
+    width: 82cqw;
+    height: calc(var(--u) * 1.6);
+    border-radius: calc(var(--u) * .8);
+    background-color: var(--belt);
+    background-image: linear-gradient(90deg, rgba(249, 250, 246, .2) 0 22%, transparent 22%);
+    background-size: 2cqw 100%
+}
+
+.belt::before,
+.belt::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    width: calc(var(--u) * .9);
+    height: calc(var(--y) - var(--u) * 1.6);
+    background: linear-gradient(#41566d, #2f4258)
+}
+
+.belt::before {
+    left: 8%
+}
+
+.belt::after {
+    right: 8%
+}
+
+/* Puertas: filtro ATS y revisión de CV Analytics */
+.gate {
+    --c: var(--steel);
+    --beam: var(--ats);
+    position: absolute;
+    left: var(--x);
+    bottom: var(--y);
+    z-index: 3;
+    width: calc(var(--u) * 11);
+    height: calc(var(--u) * 14);
+    overflow: hidden;
+    transform: translateX(-50%)
+}
+
+.gate::before,
+.gate::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: calc(var(--u) * 1.1);
+    height: 100%;
+    background: var(--c);
+    border-radius: calc(var(--u) * .3) calc(var(--u) * .3) 0 0
+}
+
+.gate::before {
+    left: 0
+}
+
+.gate::after {
+    right: 0
+}
+
+.lintel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    height: calc(var(--u) * 2);
+    background: var(--c);
+    border-radius: calc(var(--u) * .6) calc(var(--u) * .6) calc(var(--u) * .3) calc(var(--u) * .3)
+}
+
+.gate-cva {
+    --c: var(--cream);
+    --beam: var(--cva)
+}
+
+.gate-cva .lintel {
+    box-shadow: inset 0 calc(var(--u) * .5) 0 var(--cva)
+}
+
+.beam {
+    position: absolute;
+    top: 0;
+    left: calc(var(--u) * 1.1);
+    right: calc(var(--u) * 1.1);
+    height: calc(var(--u) * 5);
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--beam) 38%, transparent));
+    border-bottom: 2px solid var(--beam);
+    opacity: 0
+}
+
+/* Puerta "fantasma": el CV sin optimizar no pasa por ninguna revisión */
+.gate.ghost {
+    opacity: .55
+}
+
+.gate.ghost::before,
+.gate.ghost::after {
+    width: 0;
+    background: none;
+    border-radius: 0;
+    border-left: 2px dashed var(--pb)
+}
+
+.gate.ghost::after {
+    border-left: 0;
+    border-right: 2px dashed var(--pb)
+}
+
+.gate.ghost .lintel {
+    background: none;
+    border-top: 2px dashed var(--pb);
+    border-radius: 0
+}
+
+/* El CV */
+.cv {
+    position: absolute;
+    bottom: var(--y);
+    left: calc(var(--u) * -4);
+    z-index: 2;
+    display: grid;
+    align-content: start;
+    gap: calc(var(--u) * .75);
+    width: calc(var(--u) * 8);
+    height: calc(var(--u) * 10.5);
+    padding: var(--u) calc(var(--u) * .9);
+    background: var(--paper);
+    border-radius: calc(var(--u) * .4);
+    box-shadow: 0 calc(var(--u) * .6) calc(var(--u) * 1.4) rgba(0, 0, 0, .35);
+    transform: translate(58cqw, 0)
+}
+
+.cv i {
+    display: block;
+    height: calc(var(--u) * .55);
+    border-radius: calc(var(--u) * .3);
+    background: var(--steel)
+}
+
+.cv i:nth-child(1) {
+    width: 60%;
+    height: calc(var(--u) * .8);
+    background: #2C3E50
+}
+
+.cv i:nth-child(2) {
+    width: 45%;
+    background: #6A6A6A;
+    opacity: .55
+}
+
+.cv i:nth-child(3) {
+    width: 85%
+}
+
+.cv i:nth-child(4) {
+    width: 70%
+}
+
+.cv i:nth-child(5) {
+    width: 60%
+}
+
+.cv i:nth-child(6) {
+    width: 78%
+}
+
+.k1 {
+    --d: 0
+}
+
+.k2 {
+    --d: .4
+}
+
+.ats-b .cv i.k {
+    background: var(--cva)
+}
+
+.cv::after {
+    position: absolute;
+    top: calc(var(--u) * -1);
+    right: calc(var(--u) * -1);
+    display: grid;
+    place-items: center;
+    width: calc(var(--u) * 3);
+    height: calc(var(--u) * 3);
+    color: #fff;
+    border-radius: 50%;
+    font-size: calc(var(--u) * 1.8);
+    font-weight: 700;
+    line-height: 1
+}
+
+.ats-a .cv::after {
+    content: "✕";
+    background: #c8372d
+}
+
+.ats-b .cv::after {
+    content: "✓";
+    background: var(--cva)
+}
+
+/* Etiquetas flotantes sobre las puertas */
+.veredicto {
+    position: absolute;
+    top: 0;
+    left: var(--x);
+    z-index: 5;
+    padding: 4px 11px;
+    border: 1px solid;
+    border-radius: 999px;
+    font-size: .82rem;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+    transform: translate(-50%, 0)
+}
+
+.ats-a .veredicto {
+    color: var(--bad);
+    border-color: var(--bad);
+    background: color-mix(in srgb, var(--bad) 16%, var(--stage))
+}
+
+.ats-b .veredicto {
+    color: var(--good);
+    border-color: var(--good);
+    background: color-mix(in srgb, var(--good) 16%, var(--stage))
+}
+
+.ats-b .veredicto.cva {
+    color: var(--cream);
+    border-color: rgba(249, 250, 246, .55);
+    background: color-mix(in srgb, var(--cream) 12%, var(--stage));
+    opacity: 0
+}
+
+/* Cajas del final: trituradora y bandeja del reclutador */
+.caja {
+    position: absolute;
+    bottom: calc(var(--y) - var(--u) * 11.5);
+    left: var(--x);
+    z-index: 4;
+    width: calc(var(--u) * 12);
+    height: calc(var(--u) * 11.5);
+    border-radius: calc(var(--u) * .7);
+    transform: translateX(-50%)
+}
+
+.caja::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 8%;
+    right: 8%;
+    height: var(--u);
+    background: #0f1822;
+    border-radius: calc(var(--u) * .5)
+}
+
+.shred {
+    background: linear-gradient(180deg, #d9dfea, #aab4c6);
+    box-shadow: inset 0 0 0 2px rgba(44, 62, 80, .25)
+}
+
+.dientes {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: calc(var(--u) * 1.6);
+    height: calc(var(--u) * 2.2);
+    border-radius: calc(var(--u) * .4);
+    background-color: rgba(44, 62, 80, .12);
+    background-image: repeating-linear-gradient(90deg, #2C3E50 0 calc(var(--u) * .55), transparent calc(var(--u) * .55) calc(var(--u) * 1.1))
+}
+
+.led {
+    position: absolute;
+    top: calc(var(--u) * 2.6);
+    right: calc(var(--u) * 1.1);
+    width: calc(var(--u) * .9);
+    height: calc(var(--u) * .9);
+    background: var(--bad);
+    border-radius: 50%;
+    opacity: .3
+}
+
+.inbox {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--good) 30%, #2C3E50), #26425a);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--good) 55%, transparent)
+}
+
+.inbox::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 calc(var(--u) * 3) var(--good);
+    opacity: 0
+}
+
+.sobre {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--u) * 2);
+    width: calc(var(--u) * 5.2);
+    height: calc(var(--u) * 3.6);
+    overflow: hidden;
+    border: 2px solid rgba(249, 250, 246, .6);
+    border-radius: calc(var(--u) * .5);
+    transform: translateX(-50%)
+}
+
+.sobre::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: calc(var(--u) * 2.9);
+    height: calc(var(--u) * 2.9);
+    border-right: 2px solid rgba(249, 250, 246, .6);
+    border-bottom: 2px solid rgba(249, 250, 246, .6);
+    transform: translate(-50%, -50%) rotate(45deg)
+}
+
+.tick {
+    position: absolute;
+    bottom: calc(var(--y) + var(--u));
+    left: var(--x);
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    width: calc(var(--u) * 3.4);
+    height: calc(var(--u) * 3.4);
+    color: #fff;
+    background: var(--cva);
+    border-radius: 50%;
+    font-size: calc(var(--u) * 2);
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0;
+    transform: translateX(-50%)
+}
+
+/* Tiras de papel: salen por debajo de la trituradora */
+.tiras {
+    position: absolute;
+    bottom: calc(var(--y) - var(--u) * 11.5);
+    left: var(--x);
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    width: calc(var(--u) * 10);
+    height: calc(var(--u) * 5);
+    transform: translateX(-50%)
+}
+
+.tiras i {
+    --n: 0;
+    --r: 0;
+    width: calc(var(--u) * .8);
+    height: 100%;
+    background: var(--paper);
+    border-radius: calc(var(--u) * .15)
+}
+
+/* Nombres de cada estación */
+.rotulos {
+    position: relative;
+    height: 1.5rem;
+    margin-top: 8px
+}
+
+.rotulos span {
+    position: absolute;
+    top: 0;
+    left: var(--x);
+    color: rgba(249, 250, 246, .72);
+    font-size: .82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transform: translateX(-50%)
+}
+
+/* Lo que pasa en cada momento, en palabras */
+.estado {
+    display: grid;
+    margin-top: 12px
+}
+
+.estado p {
+    grid-area: 1 / 1;
+    max-width: 48ch;
+    font-size: 1rem;
+    line-height: 1.5;
+    opacity: 0
+}
+
+.estado p:nth-child(3) {
+    opacity: 1
+}
+
+/* ---------- Animación (ciclo de 12 s) ---------- */
+.estado p {
+    animation: estado 12s infinite both
+}
+
+.estado p:nth-child(2) {
+    animation-delay: 3s
+}
+
+.estado p:nth-child(3) {
+    animation-delay: 6s
+}
+
+.estado p:nth-child(4) {
+    animation-delay: 9s
+}
+
+.belt,
+.cv {
+    animation-duration: 12s;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+    animation-timing-function: ease-in-out
+}
+
+.ats-a .belt {
+    animation-name: a-belt
+}
+
+.ats-a .cv {
+    animation-name: a-cv
+}
+
+.ats-b .belt {
+    animation-name: b-belt
+}
+
+.ats-b .cv {
+    animation-name: b-cv
+}
+
+.beam,
+.chip,
+.chip i,
+.veredicto,
+.cv::after,
+.cv i.k,
+.dientes,
+.led,
+.tiras i,
+.inbox::after,
+.tick {
+    animation-duration: 12s;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both
+}
+
+.chip,
+.chip i {
+    animation-delay: calc(var(--d) * 1s)
+}
+
+.cv i.k {
+    animation-delay: calc(var(--d) * 1s)
+}
+
+.tiras i {
+    animation-delay: calc(var(--n) * .1s)
+}
+
+/* Cinta A: CV sin optimizar */
+.ats-a .gate-ats .beam {
+    animation-name: a-beam
+}
+
+.ats-a .c1,
+.ats-a .c2 {
+    animation-name: a-chip-no
+}
+
+.ats-a .c3 {
+    animation-name: a-chip-ok
+}
+
+.ats-a .c1 .ic-no,
+.ats-a .c2 .ic-no,
+.ats-a .c3 .ic-ok {
+    animation-name: a-show
+}
+
+.ats-a .chip .ic-pend {
+    animation-name: a-hide
+}
+
+.ats-a .cv::after {
+    animation-name: a-badge
+}
+
+.ats-a .veredicto {
+    animation-name: a-ver
+}
+
+.ats-a .dientes {
+    animation-name: a-dientes
+}
+
+.ats-a .led {
+    animation-name: a-led
+}
+
+.ats-a .tiras i {
+    animation-name: a-tira;
+    animation-timing-function: ease-in
+}
+
+/* Cinta B: CV optimizado con CV Analytics */
+.ats-b .gate-cva .beam {
+    animation-name: b-beam1
+}
+
+.ats-b .gate-ats .beam {
+    animation-name: b-beam2
+}
+
+.ats-b .chip {
+    animation-name: b-chip-ok
+}
+
+.ats-b .chip .ic-ok {
+    animation-name: b-show
+}
+
+.ats-b .chip .ic-pend {
+    animation-name: b-hide
+}
+
+.ats-b .cv i.k {
+    animation-name: b-marca
+}
+
+.ats-b .cv::after {
+    animation-name: b-badge
+}
+
+.ats-b .veredicto.cva {
+    animation-name: b-pill
+}
+
+.ats-b .veredicto:not(.cva) {
+    animation-name: b-ver
+}
+
+.ats-b .inbox::after {
+    animation-name: b-inbox
+}
+
+.ats-b .tick {
+    animation-name: b-tick
+}
+
+/* Fuera de pantalla la escena espera; al entrar, arranca */
+.ats-stage.en-pausa *,
+.ats-stage.en-pausa *::before,
+.ats-stage.en-pausa *::after {
+    animation-play-state: paused !important
+}
+
+@keyframes estado {
+    0% {
+        opacity: 0;
+        transform: translateY(.4em)
+    }
+
+    3%,
+    22% {
+        opacity: 1;
+        transform: none
+    }
+
+    25%,
+    100% {
+        opacity: 0;
+        transform: translateY(-.4em)
+    }
+}
+
+/* ---- A ---- */
+@keyframes a-cv {
+
+    0%,
+    3% {
+        opacity: 0;
+        transform: translate(2cqw, 0)
+    }
+
+    6.7% {
+        opacity: 1;
+        transform: translate(2cqw, 0)
+    }
+
+    30%,
+    57.5% {
+        transform: translate(58cqw, 0)
+    }
+
+    69% {
+        transform: translate(88cqw, 0)
+    }
+
+    71% {
+        transform: translate(88cqw, 0);
+        animation-timing-function: ease-in
+    }
+
+    76% {
+        opacity: 1;
+        transform: translate(88cqw, calc(var(--u) * 11))
+    }
+
+    76.1%,
+    100% {
+        opacity: 0;
+        transform: translate(88cqw, calc(var(--u) * 11))
+    }
+}
+
+@keyframes a-belt {
+
+    0%,
+    6.7% {
+        background-position-x: 0
+    }
+
+    30%,
+    57.5% {
+        background-position-x: 56cqw
+    }
+
+    69%,
+    100% {
+        background-position-x: 86cqw
+    }
+}
+
+@keyframes a-beam {
+
+    0%,
+    31.5%,
+    47.5%,
+    100% {
+        opacity: 0;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    32% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    39% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * 9))
+    }
+
+    39.2% {
+        opacity: 0;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    40% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    47% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * 9))
+    }
+}
+
+@keyframes a-chip-no {
+
+    0%,
+    33%,
+    93%,
+    100% {
+        color: var(--pc);
+        border-color: var(--pb);
+        background: transparent
+    }
+
+    36%,
+    90% {
+        color: var(--bad);
+        border-color: var(--bad);
+        background: color-mix(in srgb, var(--bad) 14%, transparent)
+    }
+}
+
+@keyframes a-chip-ok {
+
+    0%,
+    33%,
+    93%,
+    100% {
+        color: var(--pc);
+        border-color: var(--pb);
+        background: transparent
+    }
+
+    36%,
+    90% {
+        color: var(--good);
+        border-color: var(--good);
+        background: color-mix(in srgb, var(--good) 14%, transparent)
+    }
+}
+
+@keyframes a-show {
+
+    0%,
+    33%,
+    93%,
+    100% {
+        opacity: 0
+    }
+
+    36%,
+    90% {
+        opacity: 1
+    }
+}
+
+@keyframes a-hide {
+
+    0%,
+    33%,
+    93%,
+    100% {
+        opacity: 1
+    }
+
+    36%,
+    90% {
+        opacity: 0
+    }
+}
+
+@keyframes a-badge {
+
+    0%,
+    51% {
+        transform: scale(0)
+    }
+
+    54% {
+        transform: scale(1.25)
+    }
+
+    56%,
+    100% {
+        transform: scale(1)
+    }
+}
+
+@keyframes a-ver {
+
+    0%,
+    51%,
+    91%,
+    100% {
+        opacity: 0;
+        transform: translate(-50%, calc(var(--u) * .8)) scale(.92)
+    }
+
+    54%,
+    88% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1)
+    }
+}
+
+@keyframes a-dientes {
+
+    0%,
+    71% {
+        background-position-x: 0
+    }
+
+    86%,
+    100% {
+        background-position-x: calc(var(--u) * -6.6)
+    }
+}
+
+@keyframes a-led {
+
+    0%,
+    71%,
+    88%,
+    100% {
+        opacity: .3;
+        box-shadow: 0 0 0 0 transparent
+    }
+
+    73%,
+    85% {
+        opacity: 1;
+        box-shadow: 0 0 calc(var(--u) * 1.2) var(--bad)
+    }
+}
+
+@keyframes a-tira {
+
+    0%,
+    76% {
+        opacity: 1;
+        transform: translateY(0) rotate(0)
+    }
+
+    85% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * 3)) rotate(calc(var(--r) * 1deg))
+    }
+
+    91% {
+        opacity: 0;
+        transform: translateY(calc(var(--u) * 5.2)) rotate(calc(var(--r) * 2.2deg))
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(0) rotate(0)
+    }
+}
+
+/* ---- B ---- */
+@keyframes b-cv {
+
+    0%,
+    3% {
+        opacity: 0;
+        transform: translate(2cqw, 0)
+    }
+
+    6.7% {
+        opacity: 1;
+        transform: translate(2cqw, 0)
+    }
+
+    21.7%,
+    38.3% {
+        transform: translate(28cqw, 0)
+    }
+
+    50%,
+    65% {
+        transform: translate(58cqw, 0)
+    }
+
+    73% {
+        transform: translate(88cqw, 0)
+    }
+
+    75% {
+        transform: translate(88cqw, 0);
+        animation-timing-function: ease-in
+    }
+
+    80% {
+        opacity: 1;
+        transform: translate(88cqw, calc(var(--u) * 11))
+    }
+
+    80.1%,
+    100% {
+        opacity: 0;
+        transform: translate(88cqw, calc(var(--u) * 11))
+    }
+}
+
+@keyframes b-belt {
+
+    0%,
+    6.7% {
+        background-position-x: 0
+    }
+
+    21.7%,
+    38.3% {
+        background-position-x: 26cqw
+    }
+
+    50%,
+    65% {
+        background-position-x: 56cqw
+    }
+
+    73%,
+    100% {
+        background-position-x: 86cqw
+    }
+}
+
+@keyframes b-beam1 {
+
+    0%,
+    22.5%,
+    36.5%,
+    100% {
+        opacity: 0;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    23% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    29% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * 9))
+    }
+
+    29.2% {
+        opacity: 0;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    36% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * 9))
+    }
+}
+
+@keyframes b-beam2 {
+
+    0%,
+    50.5%,
+    61%,
+    100% {
+        opacity: 0;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    51% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    55.5% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * 9))
+    }
+
+    55.7% {
+        opacity: 0;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    56.2% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * -1.5))
+    }
+
+    60.5% {
+        opacity: 1;
+        transform: translateY(calc(var(--u) * 9))
+    }
+}
+
+@keyframes b-chip-ok {
+
+    0%,
+    55%,
+    93%,
+    100% {
+        color: var(--pc);
+        border-color: var(--pb);
+        background: transparent
+    }
+
+    58%,
+    90% {
+        color: var(--good);
+        border-color: var(--good);
+        background: color-mix(in srgb, var(--good) 14%, transparent)
+    }
+}
+
+@keyframes b-show {
+
+    0%,
+    55%,
+    93%,
+    100% {
+        opacity: 0
+    }
+
+    58%,
+    90% {
+        opacity: 1
+    }
+}
+
+@keyframes b-hide {
+
+    0%,
+    55%,
+    93%,
+    100% {
+        opacity: 1
+    }
+
+    58%,
+    90% {
+        opacity: 0
+    }
+}
+
+@keyframes b-marca {
+
+    0%,
+    27%,
+    96%,
+    100% {
+        background: var(--steel)
+    }
+
+    30%,
+    92% {
+        background: var(--cva)
+    }
+}
+
+@keyframes b-badge {
+
+    0%,
+    36% {
+        transform: scale(0)
+    }
+
+    39% {
+        transform: scale(1.25)
+    }
+
+    41%,
+    100% {
+        transform: scale(1)
+    }
+}
+
+@keyframes b-pill {
+
+    0%,
+    29%,
+    49%,
+    100% {
+        opacity: 0;
+        transform: translate(-50%, calc(var(--u) * .8)) scale(.92)
+    }
+
+    31%,
+    46% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1)
+    }
+}
+
+@keyframes b-ver {
+
+    0%,
+    60%,
+    93%,
+    100% {
+        opacity: 0;
+        transform: translate(-50%, calc(var(--u) * .8)) scale(.92)
+    }
+
+    63%,
+    90% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1)
+    }
+}
+
+@keyframes b-inbox {
+
+    0%,
+    79%,
+    95%,
+    100% {
+        opacity: 0
+    }
+
+    82%,
+    91% {
+        opacity: 1
+    }
+}
+
+@keyframes b-tick {
+
+    0%,
+    79%,
+    95%,
+    100% {
+        opacity: 0;
+        transform: translate(-50%, calc(var(--u) * 1)) scale(.4)
+    }
+
+    83% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1.15)
+    }
+
+    85%,
+    91% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1)
+    }
+}
+
+/* Con movimiento reducido se ve el resultado final, sin animar.
+   (app.css ya frena los elementos; acá se frenan también los pseudo-elementos) */
+@media (prefers-reduced-motion: reduce) {
+
+    .ats-stage *,
+    .ats-stage *::before,
+    .ats-stage *::after {
+        animation: none !important
+    }
+}
+
+/* ---------- Explicación ---------- */
+.ats-info {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: clamp(32px, 6vw, 88px);
+    margin-top: clamp(40px, 6vw, 72px)
+}
+
+.ats-info h3 {
+    margin-bottom: 22px;
+    font-size: 1.3rem
+}
+
+.ats-pasos,
+.ats-causas {
+    padding: 0;
+    list-style: none
+}
+
+.ats-pasos {
+    counter-reset: p
+}
+
+.ats-pasos li {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr;
+    gap: 6px 18px;
+    padding: 20px 0;
+    border-top: 1px solid var(--line)
+}
+
+.ats-pasos li:first-child,
+.ats-causas li:first-child {
+    padding-top: 0;
+    border-top: 0
+}
+
+.ats-pasos li::before {
+    content: counter(p);
+    counter-increment: p;
+    grid-row: 1 / span 2;
+    color: var(--accent-text);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    line-height: 1
+}
+
+.ats-pasos b {
+    grid-column: 2;
+    font-size: 1.1rem;
+    font-weight: 600
+}
+
+.ats-pasos p {
+    grid-column: 2;
+    max-width: 58ch;
+    color: var(--muted)
+}
+
+.ats-causas li {
+    position: relative;
+    padding: 18px 0 18px 30px;
+    border-top: 1px solid var(--line)
+}
+
+.ats-causas li::before {
+    content: "✕";
+    position: absolute;
+    top: 18px;
+    left: 0;
+    color: #b3261e;
+    font-weight: 700;
+    line-height: 1.6
+}
+
+.ats-causas li:first-child::before {
+    top: 0
+}
+
+body.dark-mode .ats-causas li::before {
+    color: #f0847b
+}
+
+.ats-causas b {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600
+}
+
+.ats-causas span {
+    display: block;
+    max-width: 52ch;
+    color: var(--muted)
+}
+
+.ats-cierre {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px 40px;
+    margin-top: clamp(36px, 5vw, 56px);
+    padding-top: 28px;
+    border-top: 1px solid var(--line)
+}
+
+.ats-cierre p {
+    max-width: 62ch;
+    font-size: 1.15rem
+}
+
+@media (max-width: 900px) {
+    .ats-info {
+        grid-template-columns: 1fr
+    }
+}

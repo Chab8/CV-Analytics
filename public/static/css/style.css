@@ -1,0 +1,438 @@
+:root{
+--bg: #f9faf6;
+--card: #f3f5f8;
+--muted: #c8d0da;
+--accent: #0c4058; /* color del ring y del botón comparar */
+--ring-bg: #dde5ee;
+}
+
+/* RESET + tipografías */
+* { box-sizing: border-box; margin:0; padding:0; }
+body {
+background: var(--bg);
+color: #22343a;
+font-family: "Segoe UI", Arial, sans-serif;
+line-height:1.4;
+}
+
+/* HEADER */
+.header {
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 40px;
+}
+.logo { height:60px; }
+.home-button img { height:38px; }
+
+/* FORM */
+.formulario { display:flex; justify-content:center; padding:48px 20px 120px; }
+.formulario-contenedor { width:100%; max-width:1180px; display:flex; flex-direction:column; align-items:center; gap:28px; }
+
+/* ROW: two big boxes + circle center */
+.upload-row {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 64px;
+width: 100%;
+flex-wrap: wrap;
+margin-bottom: 10px;
+}
+
+/* each upload big box */
+.upload-section.large { width:520px; max-width:90%; display:flex; flex-direction:column; align-items:center; gap:18px; }
+.upload-label { font-size:2rem; font-weight:500; color:#243746; text-align:center; margin-bottom:8px; }
+
+/* drop area big style */
+.drop-area {
+width:100%;
+height:300px;                /* grande como en la referencia */
+border-radius:14px;
+background: linear-gradient(180deg, #f7f8fb, #f2f4f7);
+box-shadow: 0 24px 60px rgba(12,64,88,0.06), inset 0 0 0 3px rgba(11,75,100,0.03);
+border: 2px solid rgba(11,75,100,0.12);
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:18px;
+gap:12px;
+transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+position:relative;
+overflow:hidden;
+}
+
+.drop-area:hover { transform: translateY(-6px); box-shadow: 0 30px 70px rgba(12,64,88,0.07); }
+.drop-area.dragover { background: #eef4fa; border-color: rgba(11,75,100,0.25); }
+
+/* hide actual file input but keep accessible */
+.drop-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+/* icons above */
+.icon { display:block; fill:none; stroke:#0B4B64; stroke-width:1.5; }
+
+/* file-name bigger, centered */
+.file-name {
+z-index:2;
+font-weight:700;
+color:#0f3b4b;
+font-size:1.35rem;
+pointer-events:none;
+}
+
+.progress-circle {
+--size: 128px;
+width: var(--size);
+height: var(--size);
+border-radius: 50%;
+display: grid;
+place-items: center;
+/* usa tu variable de acento; el color "restante" es semi-transparente para evitar líneas visibles */
+background: conic-gradient(var(--accent, #0B4B64) var(--progress-percent, 0%), rgba(0,0,0,0.06) var(--progress-percent, 0%));
+transition: background 420ms ease, box-shadow 240ms ease;
+box-shadow: 0 12px 30px rgba(12,64,88,0.07);
+position: relative;
+overflow: hidden;
+}
+
+/* Eliminar la marca blanca superior */
+.progress-circle::before {
+content: none;
+}
+
+/* inner circle */
+.progress-inner {
+width: 86px;
+height: 86px;
+border-radius: 50%;
+/* mismo fondo que el body/hero para que no haya seam. En modo claro: off-white; en dark lo sobreescribe más abajo */
+background: #f9faf6;
+display: grid;
+place-items: center;
+font-weight: 700;
+color: #233742;
+/* quitamos el inset 'linea blanca' que generaba el artefacto */
+box-shadow: none;
+/* dibujar un sutil borde interior para separar sin líneas blancas duras */
+outline: 1px solid rgba(0,0,0,0.06);
+outline-offset: -8px; /* ajusta para que parezca separación suave sin crear una línea marcada */
+}
+
+#progress-text { font-size:1.05rem; }
+
+
+/* Ajustes generales para pantallas más grandes */
+@media (max-width: 1920px) {
+    .upload-row { gap: 32px; }
+    .drop-area { height: 260px; }
+    .upload-section.large { width: 430px; }
+}
+
+/* Cuando ya no entran los tres elementos en línea */
+@media (max-width: 1100px) {
+    .upload-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .upload-section.large:first-of-type {
+        order: 1;
+    }
+
+    .progress-circle {
+        order: 2;
+        margin: 16px 0;
+    }
+
+    .upload-section.large:last-of-type {
+        order: 3;
+    }
+
+    .upload-section.large {
+        width: 85%;
+    }
+
+    .boton-comparar {
+        width: 300px;
+        font-size: 22px;
+        padding: 16px 36px;
+    }
+}
+
+
+
+
+/* ============================= */
+/* ======== MODO OSCURO ======== */
+/* ============================= */
+
+.dark-mode {
+--bg: #2C3E50;       /* nuevo tono más luminoso */
+--card: #1f3147;
+--muted: #7b8b97;
+--accent: #00a8e8;
+--ring-bg: #40586d;
+color: #e9edf1;
+background-color: var(--bg);
+}
+
+/* Fondo general */
+.dark-mode body {
+background-color: var(--bg);
+color: #f5f6f7;
+}
+
+/* Header */
+.dark-mode .header {
+background-color: transparent;
+}
+.dark-mode .home-button img {
+filter: brightness(0) invert(1);
+}
+
+/* LOGOS: solo se muestra uno */
+.logo-dark {
+display: none;
+}
+.dark-mode .logo-light {
+display: none;
+}
+.dark-mode .logo-dark {
+display: inline-block;
+}
+
+/* Etiquetas */
+.dark-mode .upload-label {
+color: #e9f0f7;
+}
+
+/* Área de carga */
+.dark-mode .drop-area {
+    background: linear-gradient(180deg, #1f3147, #1b2b3f);
+    border: 2px solid rgba(255, 255, 255, 0.15); /* borde sutil normal */
+    box-shadow: 0 0 40px 15px rgba(0, 150, 255, 0.35); /* sombra azul envolvente */
+    border-radius: 14px;
+    transition: all 0.25s ease-in-out;
+}
+
+.dark-mode .drop-area:hover {
+    background: linear-gradient(180deg, #253d58, #20334a);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 60px 22px rgba(0, 180, 255, 0.45);
+    transform: scale(1.02);
+}
+
+/* Estado dragover */
+.dark-mode .drop-area.dragover {
+    border: 2px solid #00c8ff;
+    box-shadow: 0 0 75px 26px rgba(0, 200, 255, 0.55);
+    transform: scale(1.04);
+}
+
+/* Estado con archivo cargado → borde blanco y sombra mantenida */
+.dark-mode .drop-area.filled {
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    background: linear-gradient(180deg, #20354d, #1d2f46);
+    box-shadow: 0 0 40px 15px rgba(0, 150, 255, 0.35);
+}
+
+
+/* Texto dentro del área */
+.dark-mode .file-name {
+color: #d1e3f0;
+}
+
+/* Íconos */
+.dark-mode .icon-img {
+filter: brightness(0) invert(1);
+}
+
+/* Círculo de progreso */
+.dark-mode .progress-circle {
+background: conic-gradient(#fff var(--progress-percent, 0%), var(--ring-bg) var(--progress-percent, 0%));
+box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+.dark-mode .progress-inner {
+background: #1f3147;
+color: #ffffff;
+}
+
+/* ===== CONTENEDOR ===== */
+.boton-contenedor {
+margin-top: 100px;
+text-align: center;
+}
+
+/* ===== BOTÓN BASE ===== */
+#boton-comparar {
+width: 320px;                /* tamaño fijo */
+height: 90px;                /* tamaño fijo */
+display: inline-flex;
+align-items: center;
+justify-content: center;
+border-radius: 50px;
+font-weight: 600;
+letter-spacing: 1px;
+text-transform: uppercase;
+border: 2px solid transparent;
+transition: all 0.3s ease;
+cursor: not-allowed;
+}
+
+/* ===== DESHABILITADO ===== */
+#boton-comparar.disabled {
+background-color: #7f8c8d;
+border: 2px solid #fff;
+color: #fff;
+font-size: 1.6rem;
+font-weight: 500;
+box-shadow: 0 0 8px rgba(255,255,255,0.1);
+}
+
+/* ===== ACTIVO ===== */
+#boton-comparar.ready {
+background-color: #009fe3;
+border: 2px solid #fff;
+color: #fff;
+cursor: pointer;
+font-size: 2rem;
+box-shadow: 0 0 20px rgba(0,159,227,0.6);
+}
+
+#boton-comparar.ready:hover {
+transform: scale(1.05);
+box-shadow: 0 0 35px rgba(0,159,227,0.8);
+}
+
+/* ===== MODO OSCURO ===== */
+.dark-mode #boton-comparar.disabled {
+background-color: #5e6a75;
+border: 2px solid #fff;
+font-size: 1.6rem;
+font-weight:500;
+box-shadow: 0 0 8px rgba(0,159,227,0.2);
+}
+
+.dark-mode #boton-comparar.ready {
+background-color: #0B4B64;
+border: 2px solid #fff;
+font-size: 2rem;
+box-shadow: 0 0 25px rgba(0,159,227,0.5);
+}
+
+.dark-mode #boton-comparar.ready:hover {
+transform: scale(1.05);
+box-shadow: 0 0 40px rgba(0,159,227,0.8);
+}
+
+/* ===== MODO CLARO ===== */
+body:not(.dark-mode) #boton-comparar.disabled {
+background-color: #d0d5db;
+border: 2px solid #fff;
+color: #fff;
+font-size: 1.6rem;
+font-weight: 500;
+box-shadow: 0 0 8px rgba(0,0,0,0.15);
+}
+
+body:not(.dark-mode) #boton-comparar.ready {
+background-color: #004b63;
+border: 2px solid #fff;
+color: #fff;
+font-size: 2rem;
+box-shadow: 0 0 20px rgba(0,75,99,0.4);
+}
+
+body:not(.dark-mode) #boton-comparar.ready:hover {
+background-color: #0B4B64;
+box-shadow: 0 0 30px rgba(0,75,99,0.6);
+}
+
+
+/* Sombras generales */
+.dark-mode .upload-section.large {
+filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));
+}
+
+
+
+
+
+/* ===== ANIMACIÓN DE CARGA Y CHECK ===== */
+.progress-circle.loading {
+animation: rotate 1.2s linear infinite;
+background: conic-gradient(#0B4B64 30%, var(--ring-bg) 30%);
+}
+
+@keyframes rotate {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+.progress-circle.check {
+background: #0B4B64;
+position: relative;
+animation: none;
+box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Tick blanco centrado */
+.progress-circle.check::after {
+content: "✔";
+position: absolute;
+color: #0B4B64;
+font-size: 2.5rem;
+font-weight: 600;
+left: 50%;
+top: 50%;
+transform: translate(-50%, -50%) scale(0);
+opacity: 1;
+animation: popIn 0.4s ease-out 0.6s forwards;
+}
+
+/* Animación del llenado (solo brillo, sin cambio de color) */
+@keyframes fillCircle {
+0% {
+    box-shadow: 0 0 0 0 #0B4B64, 0 0 15px rgba(11, 75, 100, 0.3);
+}
+100% {
+    box-shadow: 0 0 20px rgba(11, 75, 100, 0.6);
+}
+}
+
+/* Aparición del tick */
+@keyframes popIn {
+0% {
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 0;
+}
+100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+}
+
+/* ===== MODO OSCURO: círculo blanco y tick blanco ===== */
+body.dark-mode .progress-circle.loading {
+background: conic-gradient(#fff 30%, var(--ring-bg) 30%);
+}
+
+body.dark-mode .progress-circle.check {
+background: #fff;
+box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+
+body.dark-mode .progress-circle.check::after {
+color: #fff;
+}
+
+
+
+.progress-ring {
+background: conic-gradient(#0B4B64 var(--progress), #344B60 0);
+}
+.dark-mode .progress-ring {
+background: conic-gradient(#ffffff var(--progress), #344B60 0);
+}

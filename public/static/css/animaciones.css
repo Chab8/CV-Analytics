@@ -1,0 +1,353 @@
+/* CV Analytics — animaciones de la sección ATS.
+   Cargar DESPUÉS de app.css y mejoras.css (ver base.html). */
+
+:root {
+    --ok: #1f7a4d
+}
+
+body.dark-mode {
+    --ok: #4cc38a
+}
+
+
+/* ============================================================
+   1. Scanner de análisis
+   Todo comparte la misma duración y el mismo retraso, así que el haz
+   y el CV que se ilumina avanzan juntos en cada vuelta.
+   ============================================================ */
+.scanner {
+    --w: 168px;
+    --h: 224px;
+    --dur: 3.4s;
+    /* una vuelta completa */
+    --in: .7s;
+    /* el CV entra antes de que empiece el barrido */
+    position: relative;
+    width: var(--w);
+    height: var(--h);
+    animation: doc-entra .55s cubic-bezier(.2, .8, .2, 1) both
+}
+
+@keyframes doc-entra {
+    from {
+        opacity: 0;
+        transform: translateY(-28px) scale(.94)
+    }
+}
+
+/* Marco de enfoque: se cierra sobre el CV al entrar */
+.scan-frame {
+    --c: var(--accent-text);
+    position: absolute;
+    inset: -14px;
+    pointer-events: none;
+    background:
+        linear-gradient(var(--c), var(--c)) top left / 20px 2px no-repeat,
+        linear-gradient(var(--c), var(--c)) top left / 2px 20px no-repeat,
+        linear-gradient(var(--c), var(--c)) top right / 20px 2px no-repeat,
+        linear-gradient(var(--c), var(--c)) top right / 2px 20px no-repeat,
+        linear-gradient(var(--c), var(--c)) bottom left / 20px 2px no-repeat,
+        linear-gradient(var(--c), var(--c)) bottom left / 2px 20px no-repeat,
+        linear-gradient(var(--c), var(--c)) bottom right / 20px 2px no-repeat,
+        linear-gradient(var(--c), var(--c)) bottom right / 2px 20px no-repeat;
+    animation: marco-enfoca .7s cubic-bezier(.2, .8, .2, 1) .15s both
+}
+
+@keyframes marco-enfoca {
+    from {
+        inset: -34px;
+        opacity: 0
+    }
+}
+
+/* El CV: una capa apagada y la misma capa encendida encima */
+.scan-doc {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 20px 18px;
+    overflow: hidden;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow)
+}
+
+.scan-doc i,
+.scan-doc em,
+.scan-doc b {
+    display: block;
+    flex: none
+}
+
+.d-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px
+}
+
+.d-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--ring-bg)
+}
+
+.d-who {
+    display: grid;
+    gap: 6px;
+    flex: 1
+}
+
+.d-name {
+    height: 8px;
+    width: 82%;
+    border-radius: 4px;
+    background: var(--ring-bg)
+}
+
+.d-role {
+    height: 6px;
+    width: 54%;
+    border-radius: 3px;
+    background: var(--ring-bg)
+}
+
+.d-title {
+    height: 7px;
+    width: 38%;
+    margin-top: 5px;
+    border-radius: 3px;
+    background: var(--ring-bg)
+}
+
+.d-line {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--ring-bg)
+}
+
+.d-90 {
+    width: 90%
+}
+
+.d-80 {
+    width: 80%
+}
+
+.d-70 {
+    width: 70%
+}
+
+.d-50 {
+    width: 50%
+}
+
+.d-chips {
+    display: flex;
+    gap: 5px
+}
+
+.d-chips em {
+    width: 36px;
+    height: 13px;
+    border-radius: 7px;
+    background: var(--ring-bg)
+}
+
+.d-chips em:nth-child(2) {
+    width: 28px
+}
+
+.d-chips em:nth-child(3) {
+    width: 42px
+}
+
+/* Capa encendida: se revela de arriba hacia abajo siguiendo al haz */
+.scan-lit {
+    background: transparent;
+    box-shadow: none;
+    border-color: var(--accent-text);
+    animation: scan-revela var(--dur) linear var(--in) infinite both
+}
+
+.scan-lit .d-avatar,
+.scan-lit .d-name,
+.scan-lit .d-title {
+    background: var(--accent-text)
+}
+
+.scan-lit .d-role,
+.scan-lit .d-line {
+    background: var(--accent-text);
+    opacity: .6
+}
+
+.scan-lit .d-chips em {
+    background: var(--ok)
+}
+
+@keyframes scan-revela {
+    0% {
+        clip-path: inset(0 0 100% 0);
+        opacity: 1
+    }
+
+    66% {
+        clip-path: inset(0 0 0 0);
+        opacity: 1
+    }
+
+    90% {
+        clip-path: inset(0 0 0 0);
+        opacity: 1
+    }
+
+    100% {
+        clip-path: inset(0 0 0 0);
+        opacity: 0
+    }
+}
+
+/* Haz: misma duración, retraso y curva que la capa encendida */
+.scan-beam {
+    position: absolute;
+    left: -12px;
+    right: -12px;
+    top: 0;
+    height: 2px;
+    margin-top: -1px;
+    border-radius: 2px;
+    background: var(--accent-text);
+    box-shadow: 0 0 14px 2px var(--accent-text);
+    animation: scan-haz var(--dur) linear var(--in) infinite both
+}
+
+@keyframes scan-haz {
+    0% {
+        top: 0;
+        opacity: 0
+    }
+
+    4% {
+        opacity: 1
+    }
+
+    62% {
+        opacity: 1
+    }
+
+    66% {
+        top: 100%;
+        opacity: 0
+    }
+
+    100% {
+        top: 100%;
+        opacity: 0
+    }
+}
+
+/* Confirmación cuando el barrido termina */
+.scan-check {
+    position: absolute;
+    right: -16px;
+    bottom: -16px;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--ok);
+    color: #fff;
+    box-shadow: var(--shadow);
+    animation: scan-ok var(--dur) linear var(--in) infinite both
+}
+
+body.dark-mode .scan-check {
+    color: #14202b
+}
+
+.scan-check svg {
+    width: 20px;
+    height: 20px
+}
+
+@keyframes scan-ok {
+
+    0%,
+    64% {
+        transform: scale(0);
+        opacity: 0;
+        animation-timing-function: cubic-bezier(.3, 1.7, .5, 1)
+    }
+
+    74% {
+        transform: scale(1);
+        opacity: 1
+    }
+
+    90% {
+        transform: scale(1);
+        opacity: 1
+    }
+
+    100% {
+        transform: scale(.6);
+        opacity: 0
+    }
+}
+
+.overlay-hint {
+    margin-top: -14px;
+    color: var(--muted);
+    font-size: .92rem
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scan-beam {
+        display: none
+    }
+}
+
+
+/* ============================================================
+   2. Inicio: el haz del hero y el resaltado van a la par
+   (heroSync.js calcula el retraso de cada marca según su posición)
+   ============================================================ */
+.paper::after {
+    animation: haz-lineal 2.2s linear .3s 1 both
+}
+
+@keyframes haz-lineal {
+    from {
+        transform: translateY(-100%);
+        opacity: 1
+    }
+
+    92% {
+        opacity: 1
+    }
+
+    to {
+        transform: translateY(var(--paper-h, 330px));
+        opacity: 0
+    }
+}
+
+.paper mark {
+    animation-duration: .4s;
+    animation-timing-function: ease-out
+}
+
+.ring {
+    animation-delay: 2.5s
+}
+
+.paper[data-sync="pend"]::after,
+.paper[data-sync="pend"] mark {
+    animation-play-state: paused
+}

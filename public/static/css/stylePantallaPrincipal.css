@@ -1,0 +1,829 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: #F9FAF6;
+    background: linear-gradient(180deg, rgba(249, 250, 246, 1) 33%, rgba(241, 241, 241, 1) 43%, rgba(241, 241, 241, 1) 75%, rgba(249, 250, 246, 1) 85%);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+#filtrado {
+    scroll-margin-top: 200px;
+}
+
+/* ================= HEADER ================= */
+.header {
+    background: #ffffff;
+    padding: 1rem 3rem;            /* ⬅️ antes 3rem, ahora más compacto */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* Contenedor que se escala */
+.header-scale {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: max-content;
+
+    transform-origin: left center;
+    white-space: nowrap;
+
+    /* ⬅️ MÁS ESPACIO ENTRE LOGO Y NAV */
+    gap: 50rem;                     /* antes 3rem */
+}
+
+/* LOGOS */
+.logo {
+    height: 80px;
+    flex-shrink: 0;
+}
+
+/* NAV */
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.nav a {
+    font-size: 1.2rem;
+    text-decoration: none;
+    color: #222;
+    font-weight: 500;
+}
+
+/* ICONO */
+.icono-modo {
+    height: 40px;
+    flex-shrink: 0;
+}
+
+/* =================== SCALING =================== */
+/* El gap también se escala automáticamente porque está dentro del contenedor */
+
+
+@media (max-width: 1800px) {
+    .header-scale { 
+        transform: scale(1); 
+        gap: 30rem; 
+    }
+}
+
+@media (max-width: 1600px) {
+    .header-scale { 
+        transform: scale(1); 
+        gap: 25rem; 
+    }
+}
+
+@media (max-width: 1500px) {
+    .header-scale { 
+        transform: scale(1); 
+        gap: 14rem; 
+    }
+}
+
+@media (max-width: 1300px) {
+    .header-scale { 
+        transform: scale(0.95); 
+        gap: 12rem; 
+    }
+}
+
+@media (max-width: 1100px) {
+    .header-scale { 
+        transform: scale(0.85); 
+        gap: 8rem; 
+    }
+}
+
+@media (max-width: 900px) {
+    .header-scale {
+        transform: scale(0.75); 
+        gap: 5rem; 
+    }
+}
+
+@media (max-width: 750px) {
+    .header-scale {
+        transform: scale(0.65); 
+        gap: 3rem; 
+    }
+}
+
+@media (max-width: 600px) {
+    .header-scale {
+        transform: scale(0.55); 
+        gap: 3rem; 
+    }
+}
+
+@media (max-width: 480px) {
+    .header-scale {
+        transform: scale(0.48); 
+        gap: 1rem; 
+    }
+}
+
+@media (max-width: 430px) {
+    .header-scale {
+        transform: scale(0.44); 
+        gap: 0rem; 
+    }
+}
+
+@media (max-width: 400px) {
+    .header-scale {
+        transform: scale(0.40); 
+        gap: 0rem; 
+    }
+}
+
+
+
+
+/* ================= HERO ================= */
+.hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    padding: 15rem 15rem;
+    flex-wrap: wrap;
+}
+
+.hero-texto {
+    flex: 1;
+    min-width: 280px;
+    text-align: left;
+}
+
+.hero-texto h1 {
+    font-size: 4.5rem;
+    font-weight: 800;
+    color: #002244;
+    margin-bottom: 1rem;
+}
+
+.hero-texto p {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    color: #444;
+}
+
+.btn-principal {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: #0B4B64;
+    color: #fff;
+    font-size: 3rem;
+    font-weight: 500;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.btn-principal:hover {
+    background: #083446;
+}
+
+.hero-imagen {
+    flex: 1;
+    max-width: 400px;
+    width: 100%;
+}
+
+/* ================= COMO FUNCIONA ================= */
+.como-funciona {
+    padding: 4rem 2rem;
+    text-align:center;
+}
+
+.como-funciona h2 {
+    font-size: 3rem;
+    margin-bottom: 5rem;
+    color: #002244;
+    font-weight: 600;
+}
+
+.pasos {
+    display: flex;
+    justify-content: center;
+    gap: 8rem;
+    flex-wrap: wrap;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.paso {
+    width: 350px;
+    height: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    flex: none;
+}
+
+.paso img {
+    height: 80px;
+    margin-bottom: 1rem;
+}
+
+.paso p {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #002244;
+}
+
+/* ================= BENEFICIOS ================= */
+.beneficios {
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.beneficios h2 {
+    font-size: 3rem;
+    margin-bottom: 6rem;
+    color: #002244;
+    font-weight: 600;
+}
+
+/* ✅ Nuevo autolayout adaptable */
+.iconos-beneficios {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2.5rem;
+    justify-items: center;
+    align-items: start;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.iconos-beneficios div {
+    text-align: center;
+}
+
+.iconos-beneficios img {
+    height: 70px;
+    margin-bottom: 1rem;
+}
+
+.iconos-beneficios p {
+    font-weight: 500;
+    color: #002244;
+    font-size: 1rem;
+}
+
+/* ✅ Responsividad: 2 en fila / luego 1 */
+@media (max-width: 900px) {
+    .iconos-beneficios {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .iconos-beneficios {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ================= FRASE ================= */
+.frase {
+    padding: 20rem 12rem;
+    text-align: center;
+    font-size: 4.5rem;
+    font-style: italic;
+}
+
+.frase span {
+    color: #004080;
+    font-weight: 600;
+}
+
+/* ================= FOOTER ================= */
+.footer {
+    background: #002244;
+    color: #fff;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.logo-footer { height: 40px; }
+
+.footer-links {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex: 1;
+}
+
+.footer-links a {
+    text-decoration: none;
+    color: #ddd;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.footer-links a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.footer-contacto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.redes {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.redes img { height: 30px; width: 30px; }
+
+.footer-contacto-label {
+    color: #ddd;
+    font-size: .9rem;
+    text-align: right;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* ---------- RESET / BASE ---------- */
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+:root{
+--bg: #fff;
+--text: #222;
+--muted: #444;
+--accent: #0B4B64;    /* botón / acento */
+--accent-dark: #083446;
+--card-bg: #fff;
+--card-shadow: rgba(0,0,0,0.12);
+--gap-header: 6rem;
+--max-width: 1200px;
+}
+
+/* smooth transitions for color/image swaps */
+*,
+*::before,
+*::after {
+transition: color 250ms ease, background-color 300ms ease, border-color 250ms ease, box-shadow 250ms ease, opacity 200ms ease;
+}
+
+body{
+color: var(--text);
+line-height: 1.6;
+-webkit-font-smoothing:antialiased;
+-moz-osx-font-smoothing:grayscale;
+}
+
+/* ---------- HEADER ---------- */
+body.dark-mode .header {
+background: #2C3E50;
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 1rem 3rem;
+box-shadow: 0 2px 6px #2898C4;
+position: sticky;
+top: 0;
+z-index: 1000;
+}
+
+/* logo variants: show/hide based on mode */
+.logo { height: 80px; display:block; }
+.logo-light { display: inline-block; }
+.logo-dark { display: none; }
+
+.nav {
+display: flex;
+align-items: center;
+gap: var(--gap-header);
+flex-wrap: wrap;
+}
+
+.nav a {
+text-decoration: none;
+color: var(--text);
+font-weight: 600;
+font-size: 1.05rem;
+letter-spacing: 0.2px;
+}
+
+.nav a:hover {
+color: #004080;
+}
+
+.modo-oscuro-btn {
+background: none;
+border: none;
+cursor: pointer;
+padding: 0;
+display: inline-flex;
+align-items: center;
+}
+.icono-modo { height: 40px; display:inline-block; }
+
+/* modo icon variants */
+.modo-light { display: inline-block; }
+.modo-dark { display: none; }
+
+/* ---------- HERO ---------- */
+.hero {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 3rem;
+padding: 8rem 6rem;
+flex-wrap: wrap;
+max-width: 1600px;
+margin: 0 auto;
+}
+
+.hero-texto {
+flex: 1;
+min-width: 320px;
+text-align: left;
+}
+
+.hero-texto h1{
+font-size: 4.2rem;
+font-weight: 800;
+color: var(--text);
+line-height: 1.02;
+margin-bottom: .6rem;
+}
+
+.hero-texto p{
+font-size: 1.3rem;
+color: var(--muted);
+margin-bottom: 1.5rem;
+}
+
+.btn-principal {
+    display: inline-block;
+    padding: 1rem 2.8rem;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 600;
+    border-radius: 50px; /* más redondo */
+    text-decoration: none;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-principal:hover {
+    background: var(--accent-dark);
+    transform: scale(1.03);
+}
+
+/* hero image variants */
+.hero-imagen {
+flex: 1;
+max-width: 450px;
+width: 100%;
+display: block;
+}
+
+/* hero-light visible by default, hero-dark hidden until dark-mode */
+.hero-light { display: block; }
+.hero-dark { display: none; }
+
+/* ---------- COMO FUNCIONA (cards estaticas) ---------- */
+body.dark-mode.como-funciona{
+padding: 4rem 2rem;
+text-align:center;
+}
+
+body.dark-mode .como-funciona h2{
+font-size: 3rem;
+margin-bottom: 5rem;
+color: white;
+font-weight: 600;
+}
+
+.pasos {
+display: flex;
+justify-content: center;
+gap: 5rem;         /* espacio fijo entre cajas */
+flex-wrap: wrap;
+max-width: var(--max-width);
+margin: 0 auto;
+}
+
+.paso {
+width: 280px;      /* ancho fijo (no se estiran) */
+min-height: 220px;
+background: var(--card-bg);
+border-radius: 12px;
+box-shadow: 0 8px 18px var(--card-shadow);
+padding: 2rem 1.5rem;
+text-align: center;
+flex: none;        /* evita estirado */
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+}
+
+/* images variants inside paso */
+.paso img { height: 80px; margin-bottom: 1rem; display:block; }
+.paso .paso-light { display:block; }
+.paso .paso-dark { display:none; }
+
+.paso p {
+font-size: 1rem;
+font-weight: 600;
+color: var(--text);
+}
+
+/* ---------- BENEFICIOS ---------- */
+.beneficios{
+padding: 4rem 2rem;
+text-align: center;
+max-width: var(--max-width);
+margin: 0 auto;
+}
+
+.beneficios h2{
+font-size: 2.6rem;
+margin-bottom: 3.2rem;
+color: var(--text);
+font-weight: 700;
+}
+
+.iconos-beneficios{
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+gap: 2.5rem;
+max-width: var(--max-width);
+margin: 0 auto;
+align-items: start;
+}
+
+.iconos-beneficios div{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:.6rem;
+}
+
+.iconos-beneficios img{ height:70px; display:block; }
+.iconos-beneficios .beneficio-light{ display:block; }
+.iconos-beneficios .beneficio-dark{ display:none; }
+
+.iconos-beneficios p{
+font-size: 1rem;
+font-weight: 600;
+color: var(--text);
+}
+
+/* ---------- FRASE ---------- */
+.frase{
+padding: 6rem 2rem;
+text-align: center;
+font-size: 2rem;
+font-style: italic;
+background: transparent;
+color: var(--text);
+}
+
+.frase span { color: #004080; font-weight:700; }
+
+/* ---------- FOOTER ---------- */
+.footer{
+color: #fff;
+padding: 2.5rem 3rem;
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:1.5rem;
+}
+
+.footer-left { display:flex; align-items:center; gap:1rem; }
+.logo-footer { height:40px; }
+
+/* footer logo variants */
+.logo-footer.logo-dark { display:none; }  /* in normal mode show light logo (white logo hidden) */
+.logo-footer.logo-light { display:block; }
+
+/* links center */
+.footer-links {
+display:flex;
+gap:2rem;
+justify-content:center;
+align-items:center;
+flex:1;
+}
+
+.footer-links a {
+text-decoration:none;
+color: #ddd;
+font-size:1rem;
+cursor: default;
+}
+
+.footer-links a:hover {
+text-decoration: underline;
+color: #fff;
+}
+
+.footer-contacto {
+display:flex;
+flex-direction:column;
+align-items:flex-end;
+gap:.5rem;
+}
+
+.redes { display:flex; gap:1rem; align-items:center; }
+.footer-contacto a { color: #ddd; text-decoration:none; }
+.footer-contacto-label { color: #bbb; font-size: .88rem; }
+
+/* ---------- RESPONSIVE / ADAPTACIONES ---------- */
+@media (max-width: 1200px){
+.hero { padding: 6.5rem 3.5rem; gap: 2.5rem; }
+:root { --gap-header: 4rem; }
+}
+
+@media (max-width: 1000px){
+.nav { gap: 3rem; }
+.hero { padding: 5.5rem 2.5rem; }
+}
+
+@media (max-width: 800px){
+.nav { gap: 2rem; justify-content:center; }
+.hero { padding: 4.5rem 2rem; }
+.hero-texto h1 { font-size: 2.6rem; }
+.btn-principal { font-size: 1.2rem; padding:.9rem 1.6rem; }
+}
+
+@media (max-width: 600px){
+.nav { gap: 1rem; }
+.hero { padding: 3.2rem 1.2rem; flex-direction: column-reverse; text-align:center; }
+.hero-texto { text-align:center; }
+.hero-texto h1 { font-size: 2.2rem; }
+.pasos { gap: 2rem; }
+.footer { padding: 2rem 1.2rem; text-align:center; }
+.footer-contacto { align-items:center; }
+.footer-links { order: 3; width: 100%; justify-content:center; }
+.footer-left { order: 1; width: 100%; justify-content:center; }
+}
+
+/* ---------- DARK MODE: applied when <body class="dark-mode"> ---------- */
+/* base dark adjustments */
+body.dark-mode{
+background: #2C3E50;
+background: linear-gradient(180deg,rgba(44, 62, 80, 1) 33%, rgba(11, 75, 100, 1) 43%, rgba(11, 75, 100, 1) 75%, rgba(44, 62, 80, 1) 85%);
+color: #f6fbff;
+}
+
+
+/* switch logos + icons */
+body.dark-mode .logo-light { display: none; }
+body.dark-mode .logo-dark { display: inline-block; }
+
+body.dark-mode .logo-footer.logo-light { display: none; }
+body.dark-mode .logo-footer.logo-dark { display: block; }
+
+body.dark-mode .modo-light { display: none; }
+body.dark-mode .modo-dark { display: inline-block; }
+
+/* hero: text + button + image */
+body.dark-mode .hero-texto h1,
+body.dark-mode .hero-texto p {
+color: #f7fbff;
+}
+
+body.dark-mode .btn-principal {
+background: transparent;
+color: #fff;
+border: 2px solid rgba(255,255,255,0.85);
+}
+
+body.dark-mode .hero-light { display: none; }
+body.dark-mode .hero-dark { display: block; }
+
+/* pasos: new color + shadow variant + icons white */
+body.dark-mode .paso {
+background: rgba(10,30,40,0.55); /* darker card */
+box-shadow: 0 10px 30px rgba(3,83,101,0.16); /* colored shadow */
+border: 1px solid rgba(255,255,255,0.04);
+}
+
+body.dark-mode .paso p { color: #e8f7ff; }
+
+/* paso images: hide light, show dark */
+body.dark-mode .paso .paso-light { display:none; }
+body.dark-mode .paso .paso-dark { display:block; }
+
+/* beneficios: text white + images swap */
+body.dark-mode .beneficios h2,
+body.dark-mode .iconos-beneficios p {
+color: #f6fbff;
+}
+
+body.dark-mode .beneficio-light { display:none; }
+body.dark-mode .beneficio-dark { display:block; }
+
+/* frase: gradient + color */
+body.dark-mode .frase {
+color: #f3fbff;
+}
+body.dark-mode .frase span { color: #9fd8ff; }
+
+/* footer: switch to white with dark text (as requested) */
+body.dark-mode .footer {
+background: #ffffff;
+color: #0a3040;
+box-shadow: 0 -2px 24px rgba(2,16,20,0.04);
+}
+
+body.dark-mode .footer-links a { color: #0a3040; }
+body.dark-mode .footer-links a:hover { color: #00334d; }
+body.dark-mode .footer-contacto-label { color: #555; }
+
+/* small visual polish for dark mode: increase contrast of nav links */
+body.dark-mode .nav a { color: #f7fbff; }
+body.dark-mode .nav a:hover { color: #dbefff; }
+
+/* ---------- optional: focus + accessibility ---------- */
+a:focus, button:focus {
+outline: 3px solid rgba(11,75,100,0.22);
+outline-offset: 3px;
+}
+
+
+
+/* Modo claro por defecto */
+.logo-dark,
+.hero-dark,
+.paso-dark,
+.beneficio-dark,
+.logo-footer.logo-dark,
+.contacto-dark,
+.modo-dark {
+display: none;
+}
+
+/* Modo oscuro */
+body.dark-mode .logo-light,
+body.dark-mode .hero-light,
+body.dark-mode .paso-light,
+body.dark-mode .beneficio-light,
+body.dark-mode .logo-footer.logo-light,
+body.dark-mode .contacto-light,
+body.dark-mode .modo-light {
+display: none;
+}
+
+body.dark-mode .logo-dark,
+body.dark-mode .hero-dark,
+body.dark-mode .paso-dark,
+body.dark-mode .beneficio-dark,
+body.dark-mode .logo-footer.logo-dark,
+body.dark-mode .contacto-dark,
+body.dark-mode .modo-dark {
+display: inline;
+}

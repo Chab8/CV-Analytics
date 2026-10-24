@@ -1,0 +1,346 @@
+body {
+    font-family: "Segoe UI", sans-serif;
+    background-color: #F9FAF8;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    padding: 30px 60px;
+}
+
+.logo {
+    height: 70px;
+}
+
+/* --- Estructura principal --- */
+main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 80px 80px; /* padding bottom agregado */
+    margin-top: 50px;
+    gap: 60px;
+    flex-wrap: wrap; /* permite que los elementos se reacomoden */
+}
+
+/* --- Panel de sugerencias --- */
+.sugerencias-box {
+    background-color: #C3CAD9;
+    border: 2px solid #AEB5C3;
+    border-radius: 16px;
+    padding: 40px 50px;
+    width: 55%;
+    height: 500px; /* ALTURA FIJA */
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    flex: 1 1 500px;
+    display: flex;
+    flex-direction: column; /* permite que el contenido interno sea scroll */
+}
+
+.sugerencias-content {
+    color: #1a1a1a;
+    line-height: 1.8;
+    font-size: 1.25rem;
+    white-space: pre-wrap;
+
+    flex: 1;                 /* ocupa el espacio disponible */
+    overflow-y: auto;        /* SCROLL vertical */
+    padding-right: 10px;     /* para que no corte el texto con el borde */
+}
+
+/* Scrollbar moderna para la caja de sugerencias */
+.sugerencias-content::-webkit-scrollbar {
+    width: 18px;    
+}
+
+/* Pista completa bien alineada arriba y a la derecha */
+.sugerencias-content::-webkit-scrollbar-track {
+    background: #ffffff;
+    border-radius: 12px;
+    margin-left: 4px;      /* más pegado a la derecha */
+    margin-top: 4px;       /* para que no arranque a mitad */
+    margin-bottom: 4px;
+}
+
+/* Thumb */
+.sugerencias-content::-webkit-scrollbar-thumb {
+    background: #bcbcbc;
+    border-radius: 12px;
+    border: 4px solid #ffffff;   /* efecto “flotante” */
+}
+
+.sugerencias-content::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+
+
+.sugerencias-box h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #003E54;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sugerencias-box h2::before {
+    content: "💡";
+    font-size: 2rem;
+}
+
+/* --- Sección derecha --- */
+.right-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+    margin-top: 40px;
+    flex: 0 1 400px; /* ancho preferido, pero puede moverse */
+}
+
+/* --- Círculo de progreso --- */
+.progress-circle {
+    position: relative;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: conic-gradient(#0B4B64 var(--progress, 0%), #C3CAD9 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.progress-inner {
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background-color: #F9FAF8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4.5rem;
+    font-weight: bold;
+    color: #0B4B64;
+}
+
+/* --- Botón volver --- */
+.btn-volver {
+    background-color: #0B4B64;
+    color: white;
+    border: none;
+    padding: 28px 80px; /* más grande */
+    border-radius: 60px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.25s ease;
+    white-space: nowrap; /* evita que el texto se parta */
+}
+
+.btn-volver:hover {
+    background-color: #09384b;
+    transform: scale(1.05);
+}
+
+/* --- Círculo de progreso SVG --- */
+.progress-container {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring__background {
+    fill: #F9FAF8; /* fondo central */
+    stroke: #C3CAD9; /* color gris del fondo */
+    stroke-width: 32; /* más ancho */
+}
+
+.progress-ring__circle {
+    fill: transparent;
+    stroke: #0B4B64; /* color del progreso */
+    stroke-width: 28; /* igual que el fondo */
+    stroke-dasharray: 880; /* 2 * π * r */
+    stroke-dashoffset: 880;
+    transition: stroke-dashoffset 1s ease;
+    /* quitamos el borde redondeado */
+}
+
+.progress-label {
+    position: absolute;
+    font-size: 4rem;
+    font-weight: bold;
+    color: #000;
+}
+
+
+
+
+
+/* --- MODO OSCURO --- */
+body.dark-mode {
+    background-color: #2C3E50;
+}
+.logo-dark {
+    display: none;
+}
+
+body.dark-mode .logo-light {
+    display: none;
+}
+
+body.dark-mode .logo-dark {
+    display: block;
+}
+
+body.dark-mode .sugerencias-box {
+    background-color: #06475B;
+    border: 2px solid #0B4B64;
+    box-shadow: 0 0 30px 10px rgba(0, 180, 255, 0.45);
+}
+
+/*Scrollbar Modo Oscuro*/
+body.dark-mode .sugerencias-content::-webkit-scrollbar-track {
+    background: #0B4B64;              /* azul oscuro */
+}
+
+body.dark-mode .sugerencias-content::-webkit-scrollbar-thumb {
+    background: #9bbccc;              /* celeste/gris suave */
+    border: 3px solid #0B4B64;        /* borde del mismo color del track */
+}
+
+body.dark-mode .sugerencias-content::-webkit-scrollbar-thumb:hover {
+    background: #c4d9e8;
+}
+
+
+body.dark-mode .sugerencias-box h2 {
+    color: #E8F1F8;
+}
+
+body.dark-mode .sugerencias-content {
+    color: #DDE6EC;
+}
+
+
+
+
+/* --- Círculo de progreso --- */
+body.dark-mode .progress-circle {
+    position: relative;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background-color: #2C3E50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+body.dark-mode .progress-inner {
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background-color: #2C3E50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4.5rem;
+    font-weight: bold;
+    color: #0B4B64;
+}
+
+/* --- Círculo de progreso SVG --- */
+body.dark-mode .progress-container {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.dark-mode .progress-ring {
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 0 25px rgba(0, 180, 255, 0.55));
+}
+
+body.dark-mode .progress-ring__background {
+    fill: #2C3E50; /* fondo central */
+    stroke: #0B4B64; /* color gris del fondo */
+    stroke-width: 32; /* más ancho */
+}
+
+body.dark-mode .progress-ring__circle {
+    fill: transparent;
+    stroke: #FFFFFF; /* color del progreso */
+    stroke-width: 28; /* igual que el fondo */
+    stroke-dasharray: 880; /* 2 * π * r */
+    stroke-dashoffset: 880;
+    transition: stroke-dashoffset 1s ease;
+    /* quitamos el borde redondeado */
+}
+
+body.dark-mode .progress-label {
+    position: absolute;
+    font-size: 4rem;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+
+
+
+body.dark-mode .btn-volver {
+    background-color: #06475B;
+    color: #FFFFFF;
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px rgba(11, 75, 100, 0.6);
+}
+
+body.dark-mode .btn-volver:hover {
+    background-color: #0B4B64;
+    transform: scale(1.05);
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1100px) {
+    main {
+        flex-direction: column; /* de horizontal a vertical */
+        align-items: center; /* centrado completo */
+        justify-content: center;
+        gap: 80px;
+        padding: 40px 40px 80px; /* padding equilibrado */
+    }
+
+    .sugerencias-box {
+        width: 100%;
+        max-width: 900px;
+        padding: 40px 60px; /* padding simétrico también acá */
+    }
+
+    .right-section {
+        order: -1; /* aparece antes que la caja */
+        align-items: center; /* centra el contenido */
+        justify-content: center;
+        width: 100%;
+    }
+
+    .btn-volver {
+        padding: 26px 75px;
+        font-size: 1.6rem;
+    }
+}
