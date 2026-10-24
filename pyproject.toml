@@ -1,2 +1,20 @@
+
+[project]
+name = "cv-analytics"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = [
+    "Flask",
+    "google-generativeai",
+    "pdfplumber",
+    "Werkzeug",
+    "gunicorn",
+    "python-dotenv",
+    "pytesseract",
+    "Pillow",
+    "python-docx",
+    "mammoth",
+]
+
 [tool.vercel]
 entrypoint = "MiniBaseDatos:app"
