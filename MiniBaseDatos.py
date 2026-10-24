@@ -15,13 +15,18 @@ from crear_cv import crear_cv_bp
 load_dotenv()
 
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = os.path.join(os.getcwd(), "uploads")
-
-ALLOWED_EXTENSIONS = {"pdf", "jpg", "jpeg", "png", "doc", "docx", "txt"}
-MAX_TEXTO_OFERTA = 20000
+if os.environ.get("VERCEL"):
+    app.config["UPLOAD_FOLDER"] = "/tmp/uploads"
+else:
+    app.config["UPLOAD_FOLDER"] = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "uploads"
+    )
 
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
+ALLOWED_EXTENSIONS = {"pdf", "jpg", "jpeg", "png", "doc", "docx", "txt"}
+MAX_TEXTO_OFERTA = 20000
 API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
 if API_KEY:
